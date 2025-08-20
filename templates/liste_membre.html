@@ -1,28 +1,53 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% block title %}Liste Membres{% endblock %}
 {% block content %}
-<h2>Liste des membres</h2>
+<h2>Liste des Membres</h2>
 <table>
     <thead>
         <tr>
             <th>#</th>
             <th>Nom</th>
             <th>Postnom</th>
-            <th>Téléphone</th>
+            <th>Date Naissance</th>
             <th>Adresse</th>
+            <th>Téléphone</th>
             <th>Section</th>
         </tr>
     </thead>
     <tbody>
         {% for m in membres %}
         <tr>
-            <td>{{ m.id }}</td>
+            <td>{{ loop.index }}</td>
             <td>{{ m.nom }}</td>
             <td>{{ m.postnom }}</td>
-            <td>{{ m.telephone }}</td>
+            <td>{{ m.date_naissance.strftime('%d/%m/%Y') }}</td>
             <td>{{ m.adresse }}</td>
+            <td>{{ m.telephone }}</td>
             <td>{{ m.section }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<style>
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    padding: 12px;
+    border: 1px solid #333;
+    text-align: left;
+}
+th {
+    background-color: #272727;
+}
+tr:nth-child(even) {
+    background-color: #1A1A1A;
+}
+tr:hover {
+    background-color: #333;
+}
+</style>
 {% endblock %}
