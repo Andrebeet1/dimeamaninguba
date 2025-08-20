@@ -1,9 +1,11 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% block title %}Enregistrer Dîme{% endblock %}
 {% block content %}
-<h2>Enregistrer une dîme</h2>
+<h2>Enregistrer une Dîme</h2>
+
 <form id="dimeForm">
     <select name="membre_id" required>
-        <option value="">Sélectionner un membre</option>
+        <option value="">--Choisir un membre--</option>
         {% for m in membres %}
         <option value="{{ m.id }}">{{ m.nom }} {{ m.postnom }}</option>
         {% endfor %}
@@ -14,6 +16,29 @@
         <option value="FC">FC</option>
         <option value="USD">USD</option>
     </select>
-    <button type="submit">Enregistrer</button>
+    <button type="submit"><i class="fas fa-coins"></i> Enregistrer</button>
 </form>
+
+<div id="message"></div>
+
+<script>
+document.getElementById('dimeForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    let formData = new FormData(this);
+    let response = await fetch("/enregistrer_dime", {
+        method: "POST",
+        body: formData
+    });
+    let result = await response.json();
+    let msg = document.getElementById('message');
+    if(result.success){
+        msg.textContent = "Dîme enregistrée avec succès !";
+        msg.style.color = "#4ADE80";
+        this.reset();
+    } else {
+        msg.textContent = "Erreur : " + result.message;
+        msg.style.color = "#F87171";
+    }
+});
+</script>
 {% endblock %}
