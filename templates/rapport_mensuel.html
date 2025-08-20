@@ -1,9 +1,24 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% block title %}Rapport Mensuel{% endblock %}
 {% block content %}
 <h2>Rapport Mensuel</h2>
-<p>Nombre de membres: {{ membres_count }}</p>
-<p>Total en FC: {{ total_fc }}</p>
-<p>Total en USD: {{ total_usd }}</p>
-<p>Taux de change: {{ 2000 }}</p>
-<p>Total général en USD: {{ total_general_usd }}</p>
+<ul>
+    <li>Total membres : {{ membres_count }}</li>
+    <li>Total FC : {{ total_fc }}</li>
+    <li>Total USD : {{ total_usd }}</li>
+    <li>Total général (USD) : {{ total_general_usd }}</li>
+</ul>
+
+<style>
+ul {
+    list-style: none;
+    padding: 0;
+}
+ul li {
+    background-color: #1E1E1E;
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 8px;
+}
+</style>
 {% endblock %}
