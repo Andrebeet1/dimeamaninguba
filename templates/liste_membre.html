@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Liste des membres</h2>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Postnom</th>
+            <th>Téléphone</th>
+            <th>Adresse</th>
+            <th>Section</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in membres %}
+        <tr>
+            <td>{{ m.id }}</td>
+            <td>{{ m.nom }}</td>
+            <td>{{ m.postnom }}</td>
+            <td>{{ m.telephone }}</td>
+            <td>{{ m.adresse }}</td>
+            <td>{{ m.section }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

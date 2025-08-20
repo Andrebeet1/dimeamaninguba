@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Ajouter un membre</h2>
+<form id="membreForm">
+    <input type="text" name="nom" placeholder="Nom" required>
+    <input type="text" name="postnom" placeholder="Postnom" required>
+    <input type="date" name="date_naissance" required>
+    <input type="text" name="adresse" placeholder="Adresse" required>
+    <input type="text" name="telephone" placeholder="Téléphone" required>
+    <select name="section" required>
+        <option value="">Sélectionner la section</option>
+        <option value="maman">Maman</option>
+        <option value="baba">Baba</option>
+        <option value="kinjana">Kinjana</option>
+        <option value="muimbaji">Muimbaji</option>
+        <option value="pasteur">Pasteur</option>
+        <option value="Réve">Réve</option>
+        <option value="Ev">Ev</option>
+        <option value="chemise">Chemise</option>
+        <option value="kiongozi">Kiongozi</option>
+    </select>
+    <button type="submit">Ajouter</button>
+</form>
+{% endblock %}

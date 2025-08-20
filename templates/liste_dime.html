@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Liste des dîmes payées</h2>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Membre</th>
+            <th>Date</th>
+            <th>Montant</th>
+            <th>Monnaie</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in dimes %}
+        <tr>
+            <td>{{ d.id }}</td>
+            <td>{{ d.membre.nom }} {{ d.membre.postnom }}</td>
+            <td>{{ d.date.strftime('%d-%m-%Y') }}</td>
+            <td>{{ d.montant }}</td>
+            <td>{{ d.monnaie }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

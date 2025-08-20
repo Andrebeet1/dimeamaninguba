@@ -1,0 +1,4 @@
+Flask==2.3.5
+Flask-SQLAlchemy==3.0.3
+psycopg2-binary==2.9.7   # pour PostgreSQL
+python-dotenv==1.0.0      # pour charger les variables d'environnement

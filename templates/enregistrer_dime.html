@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Enregistrer une dîme</h2>
+<form id="dimeForm">
+    <select name="membre_id" required>
+        <option value="">Sélectionner un membre</option>
+        {% for m in membres %}
+        <option value="{{ m.id }}">{{ m.nom }} {{ m.postnom }}</option>
+        {% endfor %}
+    </select>
+    <input type="date" name="date" required>
+    <input type="number" name="montant" placeholder="Montant" required>
+    <select name="monnaie" required>
+        <option value="FC">FC</option>
+        <option value="USD">USD</option>
+    </select>
+    <button type="submit">Enregistrer</button>
+</form>
+{% endblock %}

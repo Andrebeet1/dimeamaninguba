@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 400px; margin: 50px auto; padding: 20px; background-color: #2a2a2a; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+    <h2 style="text-align:center; color:#ffffff;">Connexion</h2>
+    <form method="POST">
+        <input type="text" name="username" placeholder="Nom d'utilisateur" required>
+        <input type="password" name="password" placeholder="Mot de passe" required>
+        <button type="submit">Se connecter</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Reçu de Dîme</h2>
+<p>Église: Ecc 8e CEPAC AMANI NGUBA</p>
+<p>Numéro du reçu: {{ dime.numero_recu }}</p>
+<p>Membre: {{ dime.membre.nom }} {{ dime.membre.postnom }}</p>
+<p>Date: {{ dime.date.strftime('%d-%m-%Y') }}</p>
+<p>Montant: {{ dime.montant }} {{ dime.monnaie }}</p>
+<p>Signature comptable: ___________________</p>
+<p>Rév: ___________________</p>
+{% endblock %}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>AMANI NGUBA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #e0e0e0; margin:0; }
+        header { background-color: #2a2a2a; padding: 15px 30px; text-align: center; }
+        nav a { color: #e0e0e0; margin: 0 15px; text-decoration: none; font-weight: bold; }
+        nav a:hover { color: #ffffff; }
+        footer { text-align: center; padding: 10px; background-color: #2a2a2a; margin-top: 30px; color: #aaaaaa; }
+        main { padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #444; text-align: center; }
+        th { background-color: #3a3a3a; }
+        tr:nth-child(even) { background-color: #2a2a2a; }
+        tr:hover { background-color: #3c3c3c; }
+        input, select, button { padding: 10px; margin: 5px 0; border-radius: 5px; border: none; width: 100%; }
+        button { background-color: #3498db; color: white; cursor: pointer; transition: background 0.3s; }
+        button:hover { background-color: #2980b9; }
+        input, select { background-color: #2a2a2a; color: #e0e0e0; }
+        .container { max-width: 1000px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Ecc 8e CEPAC AMANI NGUBA</h1>
+        <nav>
+            <a href="{{ url_for('home') }}">Accueil</a>
+            <a href="{{ url_for('ajouter_membre') }}">Ajouter Membre</a>
+            <a href="{{ url_for('liste_membre') }}">Liste Membres</a>
+            <a href="{{ url_for('enregistrer_dime') }}">Enregistrer Dîme</a>
+            <a href="{{ url_for('liste_dime') }}">Liste Dîmes</a>
+            <a href="{{ url_for('rapport_mensuel') }}">Rapport Mensuel</a>
+            <a href="{{ url_for('notifications') }}">Notifications</a>
+        </nav>
+    </header>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        &copy; 2025 AMANI NGUBA
+    </footer>
+</body>
+</html>

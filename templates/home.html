@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="text-align:center; margin-bottom:20px;">Bienvenue sur le système de gestion de la dîme</h2>
+<p style="text-align:center; color:#cccccc;">Choisissez une action pour commencer :</p>
+
+<div style="display:flex; flex-wrap:wrap; gap:20px; justify-content:center;">
+    <a href="{{ url_for('ajouter_membre') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Ajouter Membre</a>
+    <a href="{{ url_for('liste_membre') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Liste Membres</a>
+    <a href="{{ url_for('enregistrer_dime') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Enregistrer Dîme</a>
+    <a href="{{ url_for('liste_dime') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Liste Dîmes</a>
+    <a href="{{ url_for('rapport_mensuel') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Rapport Mensuel</a>
+    <a href="{{ url_for('notifications') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Notifications</a>
+</div>
+{% endblock %}
