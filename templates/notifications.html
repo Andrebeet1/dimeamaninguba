@@ -1,5 +1,17 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
 {% block content %}
 <h2>Notifications</h2>
-<p>Aucune notification pour le moment.</p>
+<div class="notifications">
+    <p>Aucune notification pour le moment.</p>
+</div>
+
+<style>
+.notifications {
+    background-color: #1E1E1E;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+</style>
 {% endblock %}
