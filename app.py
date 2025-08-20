@@ -2,10 +2,16 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
+import logging
 
+# ==========================
+# Initialisation Flask
+# ==========================
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secretkey123')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///dime.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', 'sqlite:///dime.db'
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -32,9 +38,16 @@ class Dime(db.Model):
     numero_recu = db.Column(db.String(20), unique=True, nullable=False)
 
 # ==========================
+# Création automatique des tables
+# ==========================
+@app.before_first_request
+def create_tables():
+    db.create_all()
+    logging.info("Tables créées avec succès !")
+
+# ==========================
 # Routes classiques
 # ==========================
-
 @app.route('/')
 def login():
     return render_template('login.html')
@@ -66,13 +79,18 @@ def ajouter_membre():
             db.session.commit()
             return jsonify({'success': True})
         except Exception as e:
+            logging.error(e)
             return jsonify({'success': False, 'message': str(e)})
     return render_template('ajouter_membre.html')
 
 @app.route('/liste_membre')
 def liste_membre():
-    membres = Membre.query.all()
-    return render_template('liste_membre.html', membres=membres)
+    try:
+        membres = Membre.query.all()
+        return render_template('liste_membre.html', membres=membres)
+    except Exception as e:
+        logging.error(e)
+        return "Erreur lors de l'affichage des membres : " + str(e), 500
 
 @app.route('/enregistrer_dime', methods=['GET', 'POST'])
 def enregistrer_dime():
@@ -83,6 +101,7 @@ def enregistrer_dime():
             date = datetime.strptime(request.form['date'], '%Y-%m-%d')
             montant = float(request.form['montant'])
             monnaie = request.form['monnaie']
+
             # Génération du numéro de reçu : Mmjj#xxxx
             prefix = date.strftime('%m%d')
             last_dime = Dime.query.order_by(Dime.id.desc()).first()
@@ -97,35 +116,49 @@ def enregistrer_dime():
                 numero_recu=numero_recu
             )
             db.session.add(dime)
+            db.session.flush()  # Assigne ID avant commit pour éviter conflits
             db.session.commit()
             return jsonify({'success': True})
         except Exception as e:
+            logging.error(e)
             return jsonify({'success': False, 'message': str(e)})
     return render_template('enregistrer_dime.html', membres=membres)
 
 @app.route('/liste_dime')
 def liste_dime():
-    dimes = Dime.query.order_by(Dime.date.desc()).all()
-    return render_template('liste_dime.html', dimes=dimes)
+    try:
+        dimes = Dime.query.order_by(Dime.date.desc()).all()
+        return render_template('liste_dime.html', dimes=dimes)
+    except Exception as e:
+        logging.error(e)
+        return "Erreur lors de l'affichage des dîmes : " + str(e), 500
 
 @app.route('/recu/<int:dime_id>')
 def recu(dime_id):
-    dime = Dime.query.get_or_404(dime_id)
-    return render_template('recu.html', dime=dime)
+    try:
+        dime = Dime.query.get_or_404(dime_id)
+        return render_template('recu.html', dime=dime)
+    except Exception as e:
+        logging.error(e)
+        return "Erreur lors de l'affichage du reçu : " + str(e), 500
 
 @app.route('/rapport_mensuel')
 def rapport_mensuel():
-    membres_count = Membre.query.count()
-    dimes = Dime.query.all()
-    total_fc = sum(d.montant for d in dimes if d.monnaie == 'FC')
-    total_usd = sum(d.montant for d in dimes if d.monnaie == 'USD')
-    taux_change = 2000  # exemple : 1 USD = 2000 FC
-    total_general_usd = total_usd + total_fc / taux_change
-    return render_template('rapport_mensuel.html',
-                           membres_count=membres_count,
-                           total_fc=total_fc,
-                           total_usd=total_usd,
-                           total_general_usd=round(total_general_usd, 2))
+    try:
+        membres_count = Membre.query.count()
+        dimes = Dime.query.all()
+        total_fc = sum(d.montant for d in dimes if d.monnaie == 'FC')
+        total_usd = sum(d.montant for d in dimes if d.monnaie == 'USD')
+        taux_change = 2000  # Exemple : 1 USD = 2000 FC
+        total_general_usd = total_usd + total_fc / taux_change
+        return render_template('rapport_mensuel.html',
+                               membres_count=membres_count,
+                               total_fc=total_fc,
+                               total_usd=total_usd,
+                               total_general_usd=round(total_general_usd, 2))
+    except Exception as e:
+        logging.error(e)
+        return "Erreur lors de l'affichage du rapport : " + str(e), 500
 
 @app.route('/notifications')
 def notifications():
@@ -135,5 +168,4 @@ def notifications():
 # Lancer l'application
 # ==========================
 if __name__ == '__main__':
-    db.create_all()
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
