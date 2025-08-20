@@ -1,11 +1,32 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% block title %}Reçu{% endblock %}
 {% block content %}
-<h2>Reçu de Dîme</h2>
-<p>Église: Ecc 8e CEPAC AMANI NGUBA</p>
-<p>Numéro du reçu: {{ dime.numero_recu }}</p>
-<p>Membre: {{ dime.membre.nom }} {{ dime.membre.postnom }}</p>
-<p>Date: {{ dime.date.strftime('%d-%m-%Y') }}</p>
-<p>Montant: {{ dime.montant }} {{ dime.monnaie }}</p>
-<p>Signature comptable: ___________________</p>
-<p>Rév: ___________________</p>
+<div class="recu">
+    <h2>Ecc 8e CEPAC AMANI NGUBA</h2>
+    <p>Numéro du reçu : <strong>{{ dime.numero_recu }}</strong></p>
+    <p>Nom : {{ dime.membre.nom }} {{ dime.membre.postnom }}</p>
+    <p>Montant : {{ dime.montant }} {{ dime.monnaie }}</p>
+    <p>Date : {{ dime.date.strftime('%d/%m/%Y') }}</p>
+    <br>
+    <p>Signature Comptable : ____________________</p>
+    <p>Rev : ____________________</p>
+</div>
+
+<style>
+.recu {
+    background-color: #1E1E1E;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 500px;
+    margin: 30px auto;
+    color: #E0E0E0;
+}
+.recu h2 {
+    text-align: center;
+    color: #4ADE80;
+}
+.recu p {
+    margin: 8px 0;
+}
+</style>
 {% endblock %}
