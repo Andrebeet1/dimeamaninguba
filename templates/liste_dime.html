@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% block title %}Liste Dîmes{% endblock %}
 {% block content %}
-<h2>Liste des dîmes payées</h2>
+<h2>Liste des Dîmes</h2>
 <table>
     <thead>
         <tr>
@@ -9,16 +10,18 @@
             <th>Date</th>
             <th>Montant</th>
             <th>Monnaie</th>
+            <th>Reçu</th>
         </tr>
     </thead>
     <tbody>
         {% for d in dimes %}
         <tr>
-            <td>{{ d.id }}</td>
+            <td>{{ loop.index }}</td>
             <td>{{ d.membre.nom }} {{ d.membre.postnom }}</td>
-            <td>{{ d.date.strftime('%d-%m-%Y') }}</td>
+            <td>{{ d.date.strftime('%d/%m/%Y') }}</td>
             <td>{{ d.montant }}</td>
             <td>{{ d.monnaie }}</td>
+            <td><a href="{{ url_for('recu', dime_id=d.id) }}"><i class="fas fa-receipt"></i> {{ d.numero_recu }}</a></td>
         </tr>
         {% endfor %}
     </tbody>
