@@ -1,24 +1,49 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% block title %}Ajouter Membre{% endblock %}
 {% block content %}
-<h2>Ajouter un membre</h2>
+<h2>Ajouter un nouveau membre</h2>
+
 <form id="membreForm">
     <input type="text" name="nom" placeholder="Nom" required>
     <input type="text" name="postnom" placeholder="Postnom" required>
-    <input type="date" name="date_naissance" required>
+    <input type="date" name="date_naissance" placeholder="Date de naissance" required>
     <input type="text" name="adresse" placeholder="Adresse" required>
     <input type="text" name="telephone" placeholder="Téléphone" required>
     <select name="section" required>
-        <option value="">Sélectionner la section</option>
+        <option value="">--Section--</option>
         <option value="maman">Maman</option>
         <option value="baba">Baba</option>
         <option value="kinjana">Kinjana</option>
         <option value="muimbaji">Muimbaji</option>
         <option value="pasteur">Pasteur</option>
-        <option value="Réve">Réve</option>
-        <option value="Ev">Ev</option>
+        <option value="reve">Réve</option>
+        <option value="ev">Ev</option>
         <option value="chemise">Chemise</option>
         <option value="kiongozi">Kiongozi</option>
     </select>
-    <button type="submit">Ajouter</button>
+    <button type="submit"><i class="fas fa-plus"></i> Ajouter</button>
 </form>
+
+<div id="message"></div>
+
+<script>
+document.getElementById('membreForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    let formData = new FormData(this);
+    let response = await fetch("/ajouter_membre", {
+        method: "POST",
+        body: formData
+    });
+    let result = await response.json();
+    let msg = document.getElementById('message');
+    if(result.success){
+        msg.textContent = "Membre ajouté avec succès !";
+        msg.style.color = "#4ADE80";
+        this.reset();
+    } else {
+        msg.textContent = "Erreur : " + result.message;
+        msg.style.color = "#F87171";
+    }
+});
+</script>
 {% endblock %}
