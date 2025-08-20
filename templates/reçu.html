@@ -4,9 +4,21 @@
 <div class="recu">
     <h2>Ecc 8e CEPAC AMANI NGUBA</h2>
     <p>Numéro du reçu : <strong>{{ dime.numero_recu }}</strong></p>
-    <p>Nom : {{ dime.membre.nom }} {{ dime.membre.postnom }}</p>
+
+    {% if dime.membre %}
+        <p>Nom : {{ dime.membre.nom }} {{ dime.membre.postnom }}</p>
+    {% else %}
+        <p>Nom : <em>Non renseigné</em></p>
+    {% endif %}
+
     <p>Montant : {{ dime.montant }} {{ dime.monnaie }}</p>
-    <p>Date : {{ dime.date.strftime('%d/%m/%Y') }}</p>
+
+    {% if dime.date %}
+        <p>Date : {{ dime.date.strftime('%d/%m/%Y') }}</p>
+    {% else %}
+        <p>Date : <em>Non renseignée</em></p>
+    {% endif %}
+
     <br>
     <p>Signature Comptable : ____________________</p>
     <p>Rev : ____________________</p>
