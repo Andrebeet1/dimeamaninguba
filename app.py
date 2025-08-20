@@ -40,7 +40,7 @@ class Dime(db.Model):
 # ==========================
 # Création automatique des tables
 # ==========================
-@app.before_first_request
+@app.before_serving
 def create_tables():
     db.create_all()
     logging.info("Tables créées avec succès !")
@@ -102,7 +102,6 @@ def enregistrer_dime():
             montant = float(request.form['montant'])
             monnaie = request.form['monnaie']
 
-            # Génération du numéro de reçu : Mmjj#xxxx
             prefix = date.strftime('%m%d')
             last_dime = Dime.query.order_by(Dime.id.desc()).first()
             last_num = int(last_dime.id) + 1 if last_dime else 1
@@ -116,7 +115,7 @@ def enregistrer_dime():
                 numero_recu=numero_recu
             )
             db.session.add(dime)
-            db.session.flush()  # Assigne ID avant commit pour éviter conflits
+            db.session.flush()
             db.session.commit()
             return jsonify({'success': True})
         except Exception as e:
@@ -149,7 +148,7 @@ def rapport_mensuel():
         dimes = Dime.query.all()
         total_fc = sum(d.montant for d in dimes if d.monnaie == 'FC')
         total_usd = sum(d.montant for d in dimes if d.monnaie == 'USD')
-        taux_change = 2000  # Exemple : 1 USD = 2000 FC
+        taux_change = 2000
         total_general_usd = total_usd + total_fc / taux_change
         return render_template('rapport_mensuel.html',
                                membres_count=membres_count,
