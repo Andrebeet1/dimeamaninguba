@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
 import logging
+from sqlalchemy.orm import joinedload
 
 # ==========================
 # Initialisation Flask
@@ -115,7 +116,7 @@ def enregistrer_dime():
                 numero_recu=numero_recu
             )
             db.session.add(dime)
-            db.session.flush()  # Assigne ID avant commit pour éviter conflits
+            db.session.flush()
             db.session.commit()
             return jsonify({'success': True})
         except Exception as e:
@@ -135,11 +136,14 @@ def liste_dime():
 @app.route('/recu/<int:dime_id>')
 def recu(dime_id):
     try:
-        dime = Dime.query.get_or_404(dime_id)
+        # Chargement explicite du membre associé
+        dime = Dime.query.options(joinedload(Dime.membre)).get_or_404(dime_id)
+        if dime.membre is None:
+            return "Erreur : ce reçu n'a pas de membre associé", 500
         return render_template('recu.html', dime=dime)
     except Exception as e:
         logging.error(e)
-        return "Erreur lors de l'affichage du reçu : " + str(e), 500
+        return f"Erreur lors de l'affichage du reçu : {e}", 500
 
 @app.route('/rapport_mensuel')
 def rapport_mensuel():
@@ -148,7 +152,7 @@ def rapport_mensuel():
         dimes = Dime.query.all()
         total_fc = sum(d.montant for d in dimes if d.monnaie == 'FC')
         total_usd = sum(d.montant for d in dimes if d.monnaie == 'USD')
-        taux_change = 2000  # Exemple : 1 USD = 2000 FC
+        taux_change = 2000
         total_general_usd = total_usd + total_fc / taux_change
         return render_template('rapport_mensuel.html',
                                membres_count=membres_count,
@@ -168,3 +172,4 @@ def notifications():
 # ==========================
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+
