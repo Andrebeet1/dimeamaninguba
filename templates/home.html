@@ -1,14 +1,58 @@
-{% extends "base.html" %}
-{% block content %}
-<h2 style="text-align:center; margin-bottom:20px;">Bienvenue sur le système de gestion de la dîme</h2>
-<p style="text-align:center; color:#cccccc;">Choisissez une action pour commencer :</p>
 
-<div style="display:flex; flex-wrap:wrap; gap:20px; justify-content:center;">
-    <a href="{{ url_for('ajouter_membre') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Ajouter Membre</a>
-    <a href="{{ url_for('liste_membre') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Liste Membres</a>
-    <a href="{{ url_for('enregistrer_dime') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Enregistrer Dîme</a>
-    <a href="{{ url_for('liste_dime') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Liste Dîmes</a>
-    <a href="{{ url_for('rapport_mensuel') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Rapport Mensuel</a>
-    <a href="{{ url_for('notifications') }}" style="flex:1 0 200px; background:#3a3a3a; padding:30px; border-radius:12px; text-align:center; color:#fff; text-decoration:none; transition:0.3s;">Notifications</a>
+{% extends 'base.html' %}
+{% block title %}Accueil{% endblock %}
+{% block content %}
+<h2>Bienvenue sur AMANI NGUBA</h2>
+<div class="salon">
+    <p>Gestion des membres et des dîmes en toute simplicité.</p>
+    <div class="cards">
+        <div class="card">
+            <i class="fas fa-user-plus fa-3x"></i>
+            <h3>Ajouter Membre</h3>
+        </div>
+        <div class="card">
+            <i class="fas fa-users fa-3x"></i>
+            <h3>Liste Membres</h3>
+        </div>
+        <div class="card">
+            <i class="fas fa-coins fa-3x"></i>
+            <h3>Enregistrer Dîme</h3>
+        </div>
+        <div class="card">
+            <i class="fas fa-list fa-3x"></i>
+            <h3>Liste Dîmes</h3>
+        </div>
+    </div>
 </div>
+
+<style>
+.salon {
+    text-align: center;
+    margin-top: 50px;
+}
+.cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+.card {
+    background-color: #1E1E1E;
+    padding: 30px;
+    border-radius: 12px;
+    width: 180px;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+.card:hover {
+    transform: scale(1.05);
+    background-color: #272727;
+}
+.card h3 {
+    margin-top: 15px;
+    font-size: 18px;
+    color: #E0E0E0;
+}
+</style>
 {% endblock %}
