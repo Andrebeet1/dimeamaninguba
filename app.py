@@ -78,8 +78,9 @@ def time_ago(timestamp):
 # Routes
 # ==========================
 @app.route('/')
-def login():
-    return render_template('login.html')
+def index():
+    """Redirige vers la page de connexion"""
+    return redirect(url_for('login_user'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_user():
@@ -99,32 +100,37 @@ def login_user():
 def logout():
     session.pop('user_id', None)
     flash('Déconnexion réussie !', 'success')
-    return redirect(url_for('login'))
+    return redirect(url_for('login_user'))
 
 @app.route('/home')
 def home():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_user'))
     return render_template('home.html')
 
+# ==========================
+# Ajout utilisateur par défaut
+# ==========================
 @app.route('/ajouter_utilisateur', methods=['GET'])
 def ajouter_utilisateur():
-    with app.app_context():
-        username = "Amaninguba"
-        password = "amani4321"
-        hashed_password = generate_password_hash(password)
+    username = "Amaninguba"
+    password = "amani4321"
+    hashed_password = generate_password_hash(password)
 
-        if User.query.filter_by(username=username).first() is None:
-            user = User(username=username, password=hashed_password)
-            db.session.add(user)
-            db.session.commit()
-            return 'Utilisateur ajouté avec succès !'
-        return 'L\'utilisateur existe déjà.', 400
+    if User.query.filter_by(username=username).first() is None:
+        user = User(username=username, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        return 'Utilisateur ajouté avec succès !'
+    return 'L\'utilisateur existe déjà.', 400
 
+# ==========================
+# Membres
+# ==========================
 @app.route('/ajouter_membre', methods=['GET', 'POST'])
 def ajouter_membre():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_user'))
         
     if request.method == 'POST':
         try:
@@ -148,20 +154,15 @@ def ajouter_membre():
 @app.route('/liste_membre')
 def liste_membre():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_user'))
         
-    try:
-        membres = Membre.query.all()
-        return render_template('liste_membre.html', membres=membres)
-    except Exception as e:
-        logging.error(f"Erreur lors de l'affichage des membres: {e}")
-        flash('Erreur lors de l\'affichage des membres.', 'danger')
-        return redirect(url_for('home'))
+    membres = Membre.query.all()
+    return render_template('liste_membre.html', membres=membres)
 
 @app.route('/supprimer_membre/<int:membre_id>', methods=['POST'])
 def supprimer_membre(membre_id):
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_user'))
     
     try:
         membre = Membre.query.get_or_404(membre_id)
@@ -174,10 +175,13 @@ def supprimer_membre(membre_id):
 
     return redirect(url_for('liste_membre'))
 
+# ==========================
+# Dîmes
+# ==========================
 @app.route('/enregistrer_dime', methods=['GET', 'POST'])
 def enregistrer_dime():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_user'))
         
     membres = Membre.query.all()
     if request.method == 'POST':
@@ -204,91 +208,75 @@ def enregistrer_dime():
             db.session.add(dime)
             db.session.commit()
 
-            flash('Dime enregistrée avec succès !', 'success')
+            flash('Dîme enregistrée avec succès !', 'success')
             return redirect(url_for('liste_dime'))
         except Exception as e:
-            logging.error(f"Erreur lors de l'enregistrement de la dime: {e}")
-            flash('Erreur lors de l\'enregistrement de la dime.', 'danger')
+            logging.error(f"Erreur lors de l'enregistrement de la dîme: {e}")
+            flash('Erreur lors de l\'enregistrement de la dîme.', 'danger')
     
     return render_template('enregistrer_dime.html', membres=membres)
 
 @app.route('/liste_dime')
 def liste_dime():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_user'))
         
-    try:
-        dimes = Dime.query.order_by(Dime.date.desc()).all()
-        return render_template('liste_dime.html', dimes=dimes)
-    except Exception as e:
-        logging.error(f"Erreur lors de l'affichage des dîmes: {e}")
-        flash('Erreur lors de l\'affichage des dîmes.', 'danger')
-        return redirect(url_for('home'))
+    dimes = Dime.query.order_by(Dime.date.desc()).all()
+    return render_template('liste_dime.html', dimes=dimes)
 
 @app.route('/recu/<int:dime_id>')
 def recu(dime_id):
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_user'))
         
-    try:
-        dime = Dime.query.options(joinedload(Dime.membre)).get_or_404(dime_id)
-        return render_template('recu.html', dime=dime)
-    except Exception as e:
-        logging.error(f"Erreur lors de l'affichage du reçu: {e}")
-        flash('Erreur lors de l\'affichage du reçu.', 'danger')
-        return redirect(url_for('liste_dime'))
+    dime = Dime.query.options(joinedload(Dime.membre)).get_or_404(dime_id)
+    return render_template('recu.html', dime=dime)
 
+# ==========================
+# Rapports et notifications
+# ==========================
 @app.route('/rapport_mensuel')
 def rapport_mensuel():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_user'))
         
-    try:
-        membres_count = Membre.query.count()
-        dimes = Dime.query.all()
+    membres_count = Membre.query.count()
+    dimes = Dime.query.all()
 
-        total_fc = sum(d.montant for d in dimes if d.monnaie == 'FC')
-        total_usd = sum(d.montant for d in dimes if d.monnaie == 'USD')
+    total_fc = sum(d.montant for d in dimes if d.monnaie == 'FC')
+    total_usd = sum(d.montant for d in dimes if d.monnaie == 'USD')
 
-        # Conversion pour le total général en USD
-        taux_change = 2000
-        total_general_usd = total_usd + (total_fc / taux_change)
+    # Conversion en USD
+    taux_change = 2000
+    total_general_usd = total_usd + (total_fc / taux_change)
 
-        logging.info(f"Membres: {membres_count}, Total FC: {total_fc}, Total USD: {total_usd}")
-
-        return render_template('rapport_mensuel.html',
-                               membres_count=membres_count,
-                               total_fc=total_fc,
-                               total_usd=total_usd,
-                               total_general_usd=round(total_general_usd, 2))
-    except Exception as e:
-        logging.error(f"Erreur lors de l'affichage du rapport: {e}")
-        flash('Erreur lors de l\'affichage du rapport.', 'danger')
-        return redirect(url_for('home'))
+    return render_template('rapport_mensuel.html',
+                           membres_count=membres_count,
+                           total_fc=total_fc,
+                           total_usd=total_usd,
+                           total_general_usd=round(total_general_usd, 2))
 
 @app.route('/notifications')
 def notifications_view():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_user'))
         
-    try:
-        notifications = Notification.query.order_by(Notification.date_created.desc()).all()
-        return render_template('notifications.html', notifications=notifications, time_ago=time_ago)
-    except Exception as e:
-        logging.error(f"Erreur lors de l'affichage des notifications: {e}")
-        flash('Erreur lors de l\'affichage des notifications.', 'danger')
-        return redirect(url_for('home'))
+    notifications = Notification.query.order_by(Notification.date_created.desc()).all()
+    return render_template('notifications.html', notifications=notifications, time_ago=time_ago)
 
+# ==========================
+# Recherche AJAX
+# ==========================
 @app.route('/rechercher_membre', methods=['GET'])
 def rechercher_membre():
     nom = request.args.get('nom', '')
     if nom:
         membres = Membre.query.filter(Membre.nom.ilike(f'%{nom}%')).all()
-        return jsonify([{'id': membre.id, 'nom': membre.nom, 'postnom': membre.postnom} for membre in membres])
+        return jsonify([{'id': m.id, 'nom': m.nom, 'postnom': m.postnom} for m in membres])
     return jsonify([])
 
 # ==========================
 # Lancer l'application
 # ==========================
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
