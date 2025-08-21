@@ -3,6 +3,17 @@
 <div class="login-wrapper">
     <div class="login-box">
         <h2>Connexion</h2>
+
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                        <p style="color: {% if 'Erreur' in msg %}#F87171{% else %}#4ADE80{% endif %};">{{ msg }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
         <form method="POST">
             <input type="text" name="username" placeholder="Nom d'utilisateur" required>
             <input type="password" name="password" placeholder="Mot de passe" required>
@@ -13,7 +24,7 @@
 
 <!-- Footer -->
 <footer class="login-footer">
-    © 2025 Église Amani Nguba — Tous droits réservés
+    © 2025 Église Amani Nguba -- Tous droits réservés
 </footer>
 
 <style>
@@ -89,6 +100,15 @@
     color: #666;
     margin-top: 15px;
     padding: 10px 0;
+}
+
+.flash-messages {
+    margin-bottom: 15px;
+}
+.flash-messages p {
+    margin: 0;
+    padding: 10px;
+    border-radius: 5px;
 }
 </style>
 {% endblock %}
