@@ -175,34 +175,49 @@ def supprimer_membre(membre_id):
 def enregistrer_dime():
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
+
     membres = Membre.query.all()
+
     if request.method == 'POST':
         try:
-            membre_id = request.form['membre_id']
+            membre_id = int(request.form['membre_id'])
+            membre = Membre.query.get(membre_id)
+            if not membre:
+                flash("Membre introuvable.", "danger")
+                return redirect(url_for('enregistrer_dime'))
+
             date = datetime.strptime(request.form['date'], '%Y-%m-%d')
             montant = float(request.form['montant'])
             monnaie = request.form['monnaie']
-            taux_change = float(request.form['taux_change']) if monnaie == 'FC' else None
+            taux_change = request.form.get('taux_change')
+            taux_change = float(taux_change) if taux_change else None
+
+            # Génération d'un numéro de reçu unique
             prefix = date.strftime('%m%d')
             last_dime = Dime.query.order_by(Dime.id.desc()).first()
             last_num = (last_dime.id + 1) if last_dime else 1
             numero_recu = f"{prefix}#{last_num:04d}"
+
             dime = Dime(
-                membre_id=membre_id,
+                membre_id=membre.id,
                 date=date,
                 montant=montant,
                 monnaie=monnaie,
                 numero_recu=numero_recu,
                 taux_change=taux_change
             )
+
             db.session.add(dime)
             db.session.commit()
             flash('Dîme enregistrée avec succès !', 'success')
             return redirect(url_for('liste_dime'))
+
         except Exception as e:
             logging.error(f"Erreur lors de l'enregistrement de la dîme: {e}")
-            flash('Erreur lors de l\'enregistrement de la dîme.', 'danger')
+            flash("Erreur lors de l'enregistrement de la dîme.", "danger")
+
     return render_template('enregistrer_dime.html', membres=membres)
+
 
 @app.route('/liste_dime')
 def liste_dime():
