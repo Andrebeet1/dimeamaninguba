@@ -6,6 +6,65 @@
     <title>{% block title %}AMANI NGUBA{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #E0E0E0;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1E1E1E;
+            padding: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            gap: 15px;
+        }
+        nav ul li {
+            display: inline;
+        }
+        nav a {
+            color: #4ADE80;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        nav a:hover {
+            color: #22c55e;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #1E1E1E;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        .flash-messages {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .flash-messages p {
+            margin: 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .flash-success {
+            background-color: #4ADE80;
+            color: #1E1E1E;
+        }
+        .flash-error {
+            background-color: #F87171;
+            color: #1E1E1E;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -24,6 +83,15 @@
     </header>
 
     <main>
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                        <p class="{% if 'Erreur' in msg %}flash-error{% else %}flash-success{% endif %}">{{ msg }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
         {% block content %}{% endblock %}
     </main>
 
