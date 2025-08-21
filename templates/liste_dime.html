@@ -6,6 +6,7 @@
 <!-- Barre de recherche -->
 <input type="text" id="search" class="search-input" placeholder="🔍 Rechercher un membre, un montant ou un reçu...">
 
+<!-- Messages flash -->
 <div class="flash-messages">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -31,26 +32,37 @@
         {% for d in dimes %}
         <tr>
             <td>{{ loop.index }}</td>
-            <td>{{ d.membre.nom }} {{ d.membre.postnom }}</td>
-            <td>{{ d.date.strftime('%d/%m/%Y') }}</td>
-            <td>{{ d.montant }}</td>
             <td>
-                {% if d.monnaie == "USD" %}
-                    <span class="badge usd">USD</span>
+                {% if d.membre %}
+                    {{ d.membre.nom }} {{ d.membre.postnom }}
                 {% else %}
-                    <span class="badge fc">FC</span>
+                    <em>Membre supprimé</em>
+                {% endif %}
+            </td>
+            <td>{{ d.date.strftime('%d/%m/%Y') if d.date else '-' }}</td>
+            <td>{{ "%.2f"|format(d.montant) if d.montant is not none else '-' }}</td>
+            <td>
+                {% if d.monnaie %}
+                    <span class="badge {{ 'usd' if d.monnaie=='USD' else 'fc' }}">{{ d.monnaie }}</span>
+                {% else %}
+                    -
                 {% endif %}
             </td>
             <td>
-                <a href="{{ url_for('recu', dime_id=d.id) }}" class="recu-link">
-                    <i class="fas fa-file-invoice-dollar"></i> {{ d.numero_recu }}
-                </a>
+                {% if d.numero_recu %}
+                    <a href="{{ url_for('recu', dime_id=d.id) }}" class="recu-link">
+                        <i class="fas fa-file-invoice-dollar"></i> {{ d.numero_recu }}
+                    </a>
+                {% else %}
+                    -
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
+<!-- Styles -->
 <style>
 .titre {
     text-align: center;
@@ -58,7 +70,6 @@
     margin-bottom: 15px;
 }
 
-/* Recherche */
 .search-input {
     width: 100%;
     padding: 10px;
@@ -73,7 +84,6 @@
     outline: 2px solid #4ADE80;
 }
 
-/* Tableau */
 .dime-table {
     width: 100%;
     border-collapse: collapse;
@@ -95,45 +105,21 @@
     cursor: pointer;
     user-select: none;
 }
-.dime-table tbody tr:nth-child(even) {
-    background: #2D2D2D;
-}
-.dime-table tbody tr:hover {
-    background: #333333;
-}
+.dime-table tbody tr:nth-child(even) { background: #2D2D2D; }
+.dime-table tbody tr:hover { background: #333333; }
 
-/* Badges Monnaie */
-.badge {
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: bold;
-    color: #fff;
-}
-.badge.usd { background: #16A34A; }  /* Vert foncé */
-.badge.fc { background: #2563EB; }   /* Bleu */
+.badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; color: #fff; }
+.badge.usd { background: #16A34A; }  
+.badge.fc { background: #2563EB; }
 
-/* Reçu */
-.recu-link {
-    color: #4ADE80;
-    text-decoration: none;
-    font-weight: bold;
-}
-.recu-link:hover {
-    text-decoration: underline;
-}
+.recu-link { color: #4ADE80; text-decoration: none; font-weight: bold; }
+.recu-link:hover { text-decoration: underline; }
 
-/* Tri visuel */
-th.sorted-asc::after {
-    content: " ▲";
-    color: #4ADE80;
-}
-th.sorted-desc::after {
-    content: " ▼";
-    color: #4ADE80;
-}
+th.sorted-asc::after { content: " ▲"; color: #4ADE80; }
+th.sorted-desc::after { content: " ▼"; color: #4ADE80; }
 </style>
 
+<!-- Scripts -->
 <script>
 // Tri des colonnes
 document.querySelectorAll("table.sortable thead th[data-type]").forEach(th => {
@@ -145,16 +131,13 @@ document.querySelectorAll("table.sortable thead th[data-type]").forEach(th => {
         const type = th.dataset.type;
         const isAsc = !th.classList.contains("sorted-asc");
 
-        // Reset des classes de tri
         th.parentNode.querySelectorAll("th").forEach(h => h.classList.remove("sorted-asc", "sorted-desc"));
         th.classList.toggle("sorted-asc", isAsc);
         th.classList.toggle("sorted-desc", !isAsc);
 
-        // Tri des lignes
         rows.sort((a, b) => {
             let A = a.children[index].innerText.trim().toLowerCase();
             let B = b.children[index].innerText.trim().toLowerCase();
-
             if (type === "number") {
                 A = parseFloat(A.replace(/[^0-9.-]+/g, "")) || 0;
                 B = parseFloat(B.replace(/[^0-9.-]+/g, "")) || 0;
@@ -164,11 +147,9 @@ document.querySelectorAll("table.sortable thead th[data-type]").forEach(th => {
                 A = new Date(yearA, monthA - 1, dayA);
                 B = new Date(yearB, monthB - 1, dayB);
             }
-
             return isAsc ? (A > B ? 1 : -1) : (A < B ? 1 : -1);
         });
 
-        // Réinsertion des lignes triées
         rows.forEach(r => tbody.appendChild(r));
     });
 });
@@ -176,9 +157,7 @@ document.querySelectorAll("table.sortable thead th[data-type]").forEach(th => {
 // Recherche
 document.getElementById("search").addEventListener("keyup", function() {
     const filter = this.value.toLowerCase();
-    const rows = document.querySelectorAll(".dime-table tbody tr");
-
-    rows.forEach(row => {
+    document.querySelectorAll(".dime-table tbody tr").forEach(row => {
         const textContent = Array.from(row.children).map(td => td.textContent.toLowerCase()).join(" ");
         row.style.display = textContent.includes(filter) ? "" : "none";
     });
