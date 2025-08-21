@@ -178,17 +178,24 @@ def enregistrer_dime():
     membres = Membre.query.all()
     if request.method == 'POST':
         try:
-            membre_id = request.form['membre_id']
+            membre_id = int(request.form['membre_id'])
+            membre = Membre.query.get(membre_id)
+            if not membre:
+                flash("Membre introuvable.", "danger")
+                return redirect(url_for('enregistrer_dime'))
+
             date = datetime.strptime(request.form['date'], '%Y-%m-%d')
             montant = float(request.form['montant'])
             monnaie = request.form['monnaie']
             taux_change = float(request.form['taux_change']) if monnaie == 'FC' else None
+
             prefix = date.strftime('%m%d')
             last_dime = Dime.query.order_by(Dime.id.desc()).first()
             last_num = (last_dime.id + 1) if last_dime else 1
             numero_recu = f"{prefix}#{last_num:04d}"
+
             dime = Dime(
-                membre_id=membre_id,
+                membre_id=membre.id,
                 date=date,
                 montant=montant,
                 monnaie=monnaie,
@@ -203,6 +210,7 @@ def enregistrer_dime():
             logging.error(f"Erreur lors de l'enregistrement de la dîme: {e}")
             flash('Erreur lors de l\'enregistrement de la dîme.', 'danger')
     return render_template('enregistrer_dime.html', membres=membres)
+
 
 @app.route('/liste_dime')
 def liste_dime():
