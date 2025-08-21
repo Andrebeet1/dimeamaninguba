@@ -1,25 +1,25 @@
-# create_admin.py
+from app import app, db, User
 from werkzeug.security import generate_password_hash
-from app import app, db
-from models import User
+import os
 
 def create_admin_user():
-    username = "amaninguba"   # 🔑 identifiant admin
-    password = "amani432"  # 🔑 change ce mot de passe !
-
     with app.app_context():
-        # Vérifie si l'admin existe déjà
-        user = User.query.filter_by(username=username).first()
-        if not user:
-            admin = User(
-                username=username,
-                password=generate_password_hash(password)  # hash pour sécurité
-            )
-            db.session.add(admin)
-            db.session.commit()
-            print(f"✅ Admin '{username}' créé avec succès")
-        else:
-            print(f"⚠️ Admin '{username}' existe déjà")
+        # Récupérer nom d'utilisateur et mot de passe depuis les variables d'environnement
+        username = os.environ.get('ADMIN_USERNAME', 'amaninguba')
+        password = os.environ.get('ADMIN_PASSWORD', 'amani4321')
+
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            print(f"L'utilisateur '{username}' existe déjà !")
+            return
+
+        admin_user = User(
+            username=username,
+            password=generate_password_hash(password)
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print(f"Utilisateur admin '{username}' créé avec succès !")
 
 if __name__ == "__main__":
     create_admin_user()
