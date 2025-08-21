@@ -58,6 +58,23 @@ with app.app_context():
 # ==========================
 # Fonction pour calculer le temps écoulé
 # ==========================
+@app.route('/init_admin')
+def init_admin():
+    username = "admin"
+    password = "admin123"
+    hashed_password = generate_password_hash(password)
+
+    # Vérifie si l'utilisateur existe déjà
+    if User.query.filter_by(username=username).first() is None:
+        user = User(username=username, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        return "✅ Utilisateur admin créé avec succès !<br>Username: admin<br>Password: admin123"
+    else:
+        return "ℹ️ L'utilisateur admin existe déjà."
+
+
+
 def time_ago(timestamp):
     now = datetime.utcnow()
     diff = now - timestamp
