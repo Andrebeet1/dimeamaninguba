@@ -91,6 +91,22 @@ def home():
         return redirect(url_for('login'))
     return render_template('home.html')
 
+@app.route('/ajouter_utilisateur', methods=['GET'])
+def ajouter_utilisateur():
+    with app.app_context():
+        username = "Amaninguba"
+        password = "amani4321"
+        hashed_password = generate_password_hash(password)
+
+        # Vérifier si l'utilisateur existe déjà
+        if User.query.filter_by(username=username).first() is None:
+            user = User(username=username, password=hashed_password)
+            db.session.add(user)
+            db.session.commit()
+            return 'Utilisateur ajouté avec succès !'
+        else:
+            return 'L\'utilisateur existe déjà.', 400
+
 @app.route('/ajouter_membre', methods=['GET', 'POST'])
 def ajouter_membre():
     if 'user_id' not in session:
@@ -114,11 +130,6 @@ def ajouter_membre():
                 section=section
             )
             db.session.add(membre)
-            db.session.commit()
-
-            # Ajouter une notification
-            notification = Notification(message=f"Membre '{nom} {postnom}' ajouté avec succès.")
-            db.session.add(notification)
             db.session.commit()
 
             flash('Membre ajouté avec succès !', 'success')
@@ -150,12 +161,6 @@ def supprimer_membre(membre_id):
         membre = Membre.query.get_or_404(membre_id)
         db.session.delete(membre)
         db.session.commit()
-
-        # Ajouter une notification
-        notification = Notification(message=f"Membre '{membre.nom} {membre.postnom}' supprimé avec succès.")
-        db.session.add(notification)
-        db.session.commit()
-
         flash('Membre supprimé avec succès !', 'success')
     except Exception as e:
         logging.error(e)
@@ -192,11 +197,6 @@ def enregistrer_dime():
                 taux_change=taux_change
             )
             db.session.add(dime)
-            db.session.commit()
-
-            # Ajouter une notification
-            notification = Notification(message=f"Dime enregistrée pour '{membre_id}' avec succès.")
-            db.session.add(notification)
             db.session.commit()
 
             flash('Dime enregistrée avec succès !', 'success')
