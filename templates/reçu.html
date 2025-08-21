@@ -3,14 +3,17 @@
 
 {% block content %}
 <div class="recu" id="recuContent">
-    <h2>Ecc 8e CEPAC AMANI NGUBA</h2>
+    <div class="header">
+        <h2>Ecc 8e CEPAC AMANI NGUBA</h2>
+        <p>Email : 8ecepacamaninguba@gmail.com</p>
+        <p>Tel : +243 974919329, 8159448</p>
+        <p>BP : 266 BUKAVU</p>
+    </div>
+    <h3>Reçu</h3>
     <p>Numéro du reçu : <strong>{{ dime.numero_recu or 'N/A' }}</strong></p>
-    <p>Nom : 
-        {{ dime.membre.nom if dime.membre else 'Inconnu' }}
-        {{ dime.membre.postnom if dime.membre else '' }}
-    </p>
-    <p>Montant : {{ dime.montant or 0 }} {{ dime.monnaie or '' }}</p>
-    <p>Date : {{ dime.date.strftime('%d/%m/%Y') if dime.date else 'Non défini' }}</p>
+    <p>Nom : <strong>{{ dime.membre.nom if dime.membre else 'Inconnu' }} {{ dime.membre.postnom if dime.membre else '' }}</strong></p>
+    <p>Montant : <strong>{{ dime.montant or 0 }} {{ dime.monnaie or '' }}</strong></p>
+    <p>Date : <strong>{{ dime.date.strftime('%d/%m/%Y') if dime.date else 'Non défini' }}</strong></p>
     <br>
     <p>Signature Comptable : ____________</p>
     <p>Rev : ____________</p>
@@ -32,11 +35,16 @@
     color: #E0E0E0;
     box-shadow: 0 0 5px rgba(0,0,0,0.5);
 }
-.recu h2 {
+.header {
     text-align: center;
+}
+.recu h2 {
     color: #4ADE80;
     font-size: 14px;
-    margin-bottom: 10px;
+}
+.recu h3 {
+    text-align: center;
+    margin: 10px 0;
 }
 .recu p {
     margin: 6px 0;
