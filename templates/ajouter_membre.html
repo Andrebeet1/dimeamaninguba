@@ -3,7 +3,7 @@
 {% block content %}
 <h2>Ajouter un nouveau membre</h2>
 
-<form id="membreForm" class="formulaire">
+<form id="membreForm" class="formulaire" method="POST" action="{{ url_for('ajouter_membre') }}">
     <div class="input-group">
         <i class="fas fa-user"></i>
         <input type="text" name="nom" placeholder="Nom" required>
@@ -14,7 +14,7 @@
     </div>
     <div class="input-group">
         <i class="fas fa-calendar-alt"></i>
-        <input type="date" name="date_naissance" placeholder="Date de naissance" required>
+        <input type="date" name="date_naissance" required>
     </div>
     <div class="input-group">
         <i class="fas fa-map-marker-alt"></i>
@@ -42,7 +42,15 @@
     <button type="submit"><i class="fas fa-plus"></i> Ajouter</button>
 </form>
 
-<div id="message"></div>
+<div id="message">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p style="color: {% if 'Erreur' in msg %}#F87171{% else %}#4ADE80{% endif %};">{{ msg }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
 
 <style>
 .formulaire {
@@ -116,25 +124,4 @@
 }
 </style>
 
-<script>
-document.getElementById('membreForm').addEventListener('submit', async function(e){
-    e.preventDefault();
-    let formData = new FormData(this);
-    let response = await fetch("/ajouter_membre", {
-        method: "POST",
-        body: formData
-    });
-    let result = await response.json();
-    let msg = document.getElementById('message');
-    if(result.success){
-        msg.textContent = "Membre ajouté avec succès !";
-        msg.style.color = "#4ADE80";
-        this.reset();
-    } else {
-        msg.textContent = "Erreur : " + result.message;
-        msg.style.color = "#F87171";
-    }
-});
-</script>
 {% endblock %}
-
