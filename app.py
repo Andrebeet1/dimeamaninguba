@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from datetime import datetime
 import os
 import logging
@@ -15,6 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # ==========================
 # Modèles
@@ -32,16 +34,16 @@ class Membre(db.Model):
     adresse = db.Column(db.String(100), nullable=False)
     telephone = db.Column(db.String(20), nullable=False)
     section = db.Column(db.String(20), nullable=False)
-    dimes = db.relationship('Dime', backref='membre', lazy=True)
+    dimes = db.relationship('Dime', backref='membre', lazy=True, cascade="all, delete-orphan")
 
 class Dime(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     membre_id = db.Column(db.Integer, db.ForeignKey('membre.id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     montant = db.Column(db.Float, nullable=False)
-    monnaie = db.Column(db.String(5), nullable=False)
+    monnaie = db.Column(db.String(5), nullable=False)  # FC ou USD
     numero_recu = db.Column(db.String(20), unique=True, nullable=False)
-    taux_change = db.Column(db.Float, nullable=True)
+    taux_change = db.Column(db.Float, nullable=True)  # Taux de change pour la conversion
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,14 +51,7 @@ class Notification(db.Model):
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
 # ==========================
-# Création automatique des tables
-# ==========================
-with app.app_context():
-    db.create_all()
-    logging.info("Tables créées avec succès !")
-
-# ==========================
-# Utilitaires
+# Fonctions utilitaires
 # ==========================
 def time_ago(timestamp):
     now = datetime.utcnow()
@@ -74,7 +69,7 @@ def time_ago(timestamp):
         return f"Il y a {days} jour{'s' if days != 1 else ''}"
 
 # ==========================
-# Routes de base
+# Routes principales
 # ==========================
 @app.route('/')
 def index():
@@ -138,20 +133,6 @@ def liste_membre():
     membres = Membre.query.all()
     return render_template('liste_membre.html', membres=membres)
 
-@app.route('/supprimer_membre/<int:membre_id>', methods=['POST'])
-def supprimer_membre(membre_id):
-    if 'user_id' not in session:
-        return redirect(url_for('login_user'))
-    try:
-        membre = Membre.query.get_or_404(membre_id)
-        db.session.delete(membre)
-        db.session.commit()
-        flash('Membre supprimé avec succès !', 'success')
-    except Exception as e:
-        logging.error(f"Erreur lors de la suppression du membre: {e}")
-        flash('Erreur lors de la suppression du membre.', 'danger')
-    return redirect(url_for('liste_membre'))
-
 @app.route('/modifier_membre/<int:membre_id>', methods=['GET', 'POST'])
 def modifier_membre(membre_id):
     if 'user_id' not in session:
@@ -172,6 +153,20 @@ def modifier_membre(membre_id):
             logging.error(f"Erreur lors de la modification du membre: {e}")
             flash('Erreur lors de la modification du membre.', 'danger')
     return render_template('modifier_membre.html', membre=membre)
+
+@app.route('/supprimer_membre/<int:membre_id>', methods=['POST'])
+def supprimer_membre(membre_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login_user'))
+    try:
+        membre = Membre.query.get_or_404(membre_id)
+        db.session.delete(membre)
+        db.session.commit()
+        flash('Membre supprimé avec succès !', 'success')
+    except Exception as e:
+        logging.error(f"Erreur lors de la suppression du membre: {e}")
+        flash('Erreur lors de la suppression du membre.', 'danger')
+    return redirect(url_for('liste_membre'))
 
 # ==========================
 # Dîmes
