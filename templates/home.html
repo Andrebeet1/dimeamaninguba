@@ -1,27 +1,34 @@
-
 {% extends 'base.html' %}
 {% block title %}Accueil{% endblock %}
 {% block content %}
 <h2>Bienvenue sur AMANI NGUBA</h2>
 <div class="salon">
     <p>Gestion des membres et des dîmes en toute simplicité.</p>
+
     <div class="cards">
-        <div class="card">
-            <i class="fas fa-user-plus fa-3x"></i>
-            <h3>Ajouter Membre</h3>
-        </div>
-        <div class="card">
-            <i class="fas fa-users fa-3x"></i>
-            <h3>Liste Membres</h3>
-        </div>
-        <div class="card">
-            <i class="fas fa-coins fa-3x"></i>
-            <h3>Enregistrer Dîme</h3>
-        </div>
-        <div class="card">
-            <i class="fas fa-list fa-3x"></i>
-            <h3>Liste Dîmes</h3>
-        </div>
+        <a href="{{ url_for('liste_membre') }}" class="card">
+            <i class="fas fa-users fa-3x icon"></i>
+            <h3>Total Membres</h3>
+            <p>{{ membres_count }}</p>
+        </a>
+
+        <a href="{{ url_for('liste_dime') }}" class="card">
+            <i class="fas fa-coins fa-3x icon"></i>
+            <h3>Total Dîmes (FC)</h3>
+            <p>{{ total_fc }}</p>
+        </a>
+
+        <a href="{{ url_for('liste_dime') }}" class="card">
+            <i class="fas fa-dollar-sign fa-3x icon"></i>
+            <h3>Total Dîmes (USD)</h3>
+            <p>{{ total_usd }}</p>
+        </a>
+
+        <a href="{{ url_for('rapport_mensuel') }}" class="card">
+            <i class="fas fa-star fa-3x icon"></i>
+            <h3>Meilleure Section</h3>
+            <p>{{ best_section }}</p>
+        </a>
     </div>
 </div>
 
@@ -38,11 +45,16 @@
     margin-top: 20px;
 }
 .card {
-    background-color: #1E1E1E;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    background-color: #1E1E1E; /* Couleur uniforme */
+    color: #E0E0E0;
     padding: 30px;
     border-radius: 12px;
-    width: 180px;
-    transition: transform 0.2s;
+    width: 200px;
+    transition: transform 0.2s, background-color 0.2s;
     cursor: pointer;
 }
 .card:hover {
@@ -52,7 +64,19 @@
 .card h3 {
     margin-top: 15px;
     font-size: 18px;
-    color: #E0E0E0;
+}
+.card p {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+/* Animation des icônes */
+.icon {
+    transition: transform 0.3s, color 0.3s;
+}
+.card:hover .icon {
+    transform: rotate(15deg) scale(1.2);
+    color: #4ADE80; /* couleur verte pour effet visuel */
 }
 </style>
 {% endblock %}
