@@ -38,7 +38,12 @@
             <td>{{ m.section }}</td>
             <td>
                 <a href="{{ url_for('modifier_membre', membre_id=m.id) }}" class="action-link">Modifier</a>
-                <a href="#" class="action-link" onclick="confirmDelete({{ m.id }})">Supprimer</a>
+                <form action="{{ url_for('supprimer_membre', membre_id=m.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')"
+                            class="action-link" style="background:none;border:none;padding:0;cursor:pointer;color:#4ADE80;">
+                        Supprimer
+                    </button>
+                </form>
             </td>
         </tr>
         {% endfor %}
@@ -67,7 +72,6 @@ tr:hover {
     background-color: #333;
 }
 .action-link {
-    color: #4ADE80;
     text-decoration: none;
     margin-right: 10px;
 }
@@ -75,12 +79,5 @@ tr:hover {
     text-decoration: underline;
 }
 </style>
-
-<script>
-function confirmDelete(membreId) {
-    if (confirm("Êtes-vous sûr de vouloir supprimer ce membre ?")) {
-        window.location.href = "/supprimer_membre/" + membreId;
-    }
-}
-</script>
 {% endblock %}
+
