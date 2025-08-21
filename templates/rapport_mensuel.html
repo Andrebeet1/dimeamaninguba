@@ -1,24 +1,254 @@
 {% extends 'base.html' %}
 {% block title %}Rapport Mensuel{% endblock %}
 {% block content %}
-<h2>Rapport Mensuel</h2>
-<ul>
-    <li>Total membres : {{ membres_count }}</li>
-    <li>Total FC : {{ total_fc }}</li>
-    <li>Total USD : {{ total_usd }}</li>
-    <li>Total général (USD) : {{ total_general_usd }}</li>
+<h2 class="rapport-titre">Rapport Mensuel</h2>
+
+<!-- Résumé principal -->
+<ul class="resume">
+    <li>Total membres : <strong>{{ membres_count }}</strong></li>
+    <li>Total FC : <strong>{{ total_fc }}</strong></li>
+    <li>Total USD : <strong>{{ total_usd }}</strong></li>
+    <li>Total général (USD) : <strong>{{ total_general_usd }}</strong></li>
 </ul>
 
+<!-- Sous-menu -->
+<div class="tabs">
+    <button class="tab-btn active" data-tab="sections"><i class="fas fa-sitemap"></i> Meilleures sections</button>
+    <button class="tab-btn" data-tab="donateurs"><i class="fas fa-trophy"></i> Top 10 Donateurs</button>
+    <button class="tab-btn" data-tab="fideles"><i class="fas fa-star"></i> Fidèles de l'année</button>
+</div>
+
+<!-- Contenu des onglets -->
+<div id="sections" class="tab-content active">
+    <h3>Classement des sections</h3>
+    <input type="text" class="search-input" placeholder="🔍 Rechercher une section...">
+    <table class="sortable">
+        <thead>
+            <tr>
+                <th data-type="string">Section</th>
+                <th data-type="number">Total Dîmes (USD)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for section, montant in meilleures_sections %}
+            <tr>
+                <td>{{ section }}</td>
+                <td>{{ montant }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="donateurs" class="tab-content">
+    <h3>Top 10 Donateurs</h3>
+    <input type="text" class="search-input" placeholder="🔍 Rechercher un donateur...">
+    <table class="sortable">
+        <thead>
+            <tr>
+                <th data-type="string">Nom</th>
+                <th data-type="number">Total Dîmes (USD)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for membre, montant in top_donateurs %}
+            <tr>
+                <td>{{ membre }}</td>
+                <td>{{ montant }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="fideles" class="tab-content">
+    <h3>Fidèles de l'année</h3>
+    <input type="text" class="search-input" placeholder="🔍 Rechercher un fidèle...">
+    <table class="sortable">
+        <thead>
+            <tr>
+                <th data-type="string">Nom</th>
+                <th data-type="number">Nombre de mois donnés</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for membre, mois in fideles_annee %}
+            <tr>
+                <td>{{ membre }}</td>
+                <td>{{ mois }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 <style>
-ul {
+.rapport-titre {
+    text-align: center;
+    color: #4ADE80;
+    margin-bottom: 20px;
+}
+
+/* Résumé */
+.resume {
     list-style: none;
     padding: 0;
+    margin: 20px auto;
+    max-width: 600px;
 }
-ul li {
+.resume li {
     background-color: #1E1E1E;
     margin: 8px 0;
     padding: 12px;
     border-radius: 8px;
+    font-size: 16px;
+}
+
+/* Onglets */
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    gap: 10px;
+}
+.tab-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #272727;
+    color: #E0E0E0;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 14px;
+}
+.tab-btn.active {
+    background: #4ADE80;
+    color: #1E1E1E;
+    font-weight: bold;
+}
+.tab-btn:hover {
+    background: #333333;
+}
+
+/* Contenu */
+.tab-content {
+    display: none;
+    background: #1E1E1E;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+.tab-content.active {
+    display: block;
+}
+
+/* Barre de recherche */
+.search-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: none;
+    background: #272727;
+    color: #E0E0E0;
+    font-size: 14px;
+}
+.search-input:focus {
+    outline: 2px solid #4ADE80;
+}
+
+/* Tableaux */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+}
+thead {
+    background: #272727;
+    cursor: pointer;
+}
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+tbody tr:nth-child(even) {
+    background: #2D2D2D;
+}
+tbody tr:hover {
+    background: #333333;
+}
+th {
+    color: #4ADE80;
+    user-select: none;
+}
+th.sorted-asc::after {
+    content: " ▲";
+    color: #4ADE80;
+}
+th.sorted-desc::after {
+    content: " ▼";
+    color: #4ADE80;
 }
 </style>
+
+<script>
+// Onglets
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+});
+
+// Tri des colonnes
+document.querySelectorAll("table.sortable thead th").forEach(th => {
+    th.addEventListener("click", function() {
+        const table = th.closest("table");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const index = Array.from(th.parentNode.children).indexOf(th);
+        const type = th.dataset.type || "string";
+        const isAsc = !th.classList.contains("sorted-asc");
+
+        // reset autres colonnes
+        th.parentNode.querySelectorAll("th").forEach(h => h.classList.remove("sorted-asc", "sorted-desc"));
+
+        rows.sort((a, b) => {
+            let A = a.children[index].innerText.trim();
+            let B = b.children[index].innerText.trim();
+
+            if (type === "number") {
+                A = parseFloat(A.replace(/[^0-9.-]+/g, "")) || 0;
+                B = parseFloat(B.replace(/[^0-9.-]+/g, "")) || 0;
+            }
+
+            if (A < B) return isAsc ? -1 : 1;
+            if (A > B) return isAsc ? 1 : -1;
+            return 0;
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+        th.classList.add(isAsc ? "sorted-asc" : "sorted-desc");
+    });
+});
+
+// Recherche en temps réel
+document.querySelectorAll(".search-input").forEach(input => {
+    input.addEventListener("keyup", function() {
+        const filter = this.value.toLowerCase();
+        const table = this.nextElementSibling; 
+        const rows = table.querySelectorAll("tbody tr");
+
+        rows.forEach(row => {
+            row.style.display = Array.from(row.children).some(td => 
+                td.textContent.toLowerCase().includes(filter)
+            ) ? "" : "none";
+        });
+    });
+});
+</script>
+
 {% endblock %}
