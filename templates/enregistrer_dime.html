@@ -4,23 +4,30 @@
 <h2>Enregistrer une nouvelle dîme</h2>
 
 <form id="dimeForm" class="formulaire" method="POST" action="{{ url_for('enregistrer_dime') }}">
+    <!-- Sélection du membre -->
     <div class="input-group">
         <i class="fas fa-user"></i>
-        <input list="membresList" name="membre_nom" placeholder="Nom du membre" autocomplete="on" required>
-        <datalist id="membresList">
+        <select name="membre_id" required>
+            <option value="">--Sélectionner un membre--</option>
             {% for membre in membres %}
-            <option value="{{ membre.nom }} {{ membre.postnom }}">
+            <option value="{{ membre.id }}">{{ membre.nom }} {{ membre.postnom }}</option>
             {% endfor %}
-        </datalist>
+        </select>
     </div>
+
+    <!-- Date -->
     <div class="input-group">
         <i class="fas fa-calendar-alt"></i>
         <input type="date" name="date" placeholder="Date" required>
     </div>
+
+    <!-- Montant -->
     <div class="input-group">
         <i class="fas fa-coins"></i>
         <input type="number" step="0.01" name="montant" placeholder="Montant" required>
     </div>
+
+    <!-- Monnaie -->
     <div class="input-group">
         <i class="fas fa-dollar-sign"></i>
         <select name="monnaie" required>
@@ -29,13 +36,17 @@
             <option value="USD">USD</option>
         </select>
     </div>
-    <div class="input-group" id="tauxChangeGroup" style="display:none;">
+
+    <!-- Taux de change (optionnel) -->
+    <div class="input-group">
         <i class="fas fa-exchange-alt"></i>
-        <input type="number" step="0.01" name="taux_change" placeholder="Taux de change" id="tauxChangeInput">
+        <input type="number" step="0.01" name="taux_change" placeholder="Taux de change (FC -> USD)">
     </div>
+
     <button type="submit"><i class="fas fa-plus"></i> Enregistrer Dîme</button>
 </form>
 
+<!-- Messages flash -->
 <div id="message">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -45,23 +56,6 @@
         {% endif %}
     {% endwith %}
 </div>
-
-<script>
-const monnaieSelect = document.querySelector('select[name="monnaie"]');
-const tauxGroup = document.getElementById('tauxChangeGroup');
-const tauxInput = document.getElementById('tauxChangeInput');
-
-monnaieSelect.addEventListener('change', () => {
-    if (monnaieSelect.value === 'FC') {
-        tauxGroup.style.display = 'flex';
-        tauxInput.required = true;
-    } else {
-        tauxGroup.style.display = 'none';
-        tauxInput.required = false;
-        tauxInput.value = '';
-    }
-});
-</script>
 
 <style>
 .formulaire {
@@ -75,6 +69,7 @@ monnaieSelect.addEventListener('change', () => {
     border-radius: 12px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
+
 .input-group {
     display: flex;
     align-items: center;
@@ -83,11 +78,13 @@ monnaieSelect.addEventListener('change', () => {
     padding: 14px 16px;
     transition: transform 0.2s, background-color 0.2s;
 }
+
 .input-group i {
     margin-right: 12px;
     color: #4ADE80;
     font-size: 20px;
 }
+
 .input-group input,
 .input-group select {
     border: none;
@@ -96,14 +93,17 @@ monnaieSelect.addEventListener('change', () => {
     font-size: 18px;
     width: 100%;
 }
+
 .input-group input:focus,
 .input-group select:focus {
     outline: none;
 }
+
 .input-group:hover {
     background-color: #333333;
     transform: scale(1.02);
 }
+
 .formulaire button {
     width: 100%;
     padding: 16px;
@@ -116,10 +116,12 @@ monnaieSelect.addEventListener('change', () => {
     cursor: pointer;
     transition: transform 0.2s, background-color 0.2s;
 }
+
 .formulaire button:hover {
     background-color: #22c55e;
     transform: scale(1.05);
 }
+
 #message {
     text-align: center;
     margin-top: 18px;
