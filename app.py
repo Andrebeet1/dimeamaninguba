@@ -7,6 +7,7 @@ import logging
 from sqlalchemy.orm import joinedload
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 # ==========================
 # Initialisation Flask
 # ==========================
@@ -223,7 +224,9 @@ def enregistrer_dime():
 def liste_dime():
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
-    dimes = Dime.query.order_by(Dime.date.desc()).all()
+
+    # Charger les membres liés à chaque dîme en une seule requête
+    dimes = Dime.query.options(joinedload(Dime.membre)).order_by(Dime.date.desc()).all()
     return render_template('liste_dime.html', dimes=dimes)
 
 @app.route('/recu/<int:dime_id>')
