@@ -3,7 +3,7 @@
 {% block content %}
 <h2>Enregistrer une nouvelle dîme</h2>
 
-<form id="dimeForm" class="formulaire">
+<form id="dimeForm" class="formulaire" method="POST" action="{{ url_for('enregistrer_dime') }}">
     <div class="input-group">
         <i class="fas fa-user"></i>
         <input list="membresList" name="membre_nom" placeholder="Nom du membre" autocomplete="on" required>
@@ -32,7 +32,15 @@
     <button type="submit"><i class="fas fa-plus"></i> Enregistrer Dîme</button>
 </form>
 
-<div id="message"></div>
+<div id="message">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p style="color: {% if 'Erreur' in msg %}#F87171{% else %}#4ADE80{% endif %};">{{ msg }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
 
 <style>
 .formulaire {
@@ -107,41 +115,4 @@
 }
 </style>
 
-<script>
-document.getElementById('dimeForm').addEventListener('submit', async function(e){
-    e.preventDefault();
-    let formData = new FormData(this);
-
-    // Convertir le nom sélectionné en membre_id
-    let membreNom = formData.get('membre_nom');
-    let membreId = null;
-    {% for membre in membres %}
-        if (membreNom === "{{ membre.nom }} {{ membre.postnom }}") {
-            membreId = {{ membre.id }};
-        }
-    {% endfor %}
-    if (!membreId) {
-        document.getElementById('message').textContent = "Membre introuvable !";
-        document.getElementById('message').style.color = "#F87171";
-        return;
-    }
-    formData.set('membre_id', membreId);
-
-    let response = await fetch("/enregistrer_dime", {
-        method: "POST",
-        body: formData
-    });
-    let result = await response.json();
-    let msg = document.getElementById('message');
-    if(result.success){
-        msg.textContent = "Dîme enregistrée avec succès !";
-        msg.style.color = "#4ADE80";
-        this.reset();
-    } else {
-        msg.textContent = "Erreur : " + result.message;
-        msg.style.color = "#F87171";
-    }
-});
-</script>
 {% endblock %}
-
