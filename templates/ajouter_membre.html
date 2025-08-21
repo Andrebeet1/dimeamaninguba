@@ -3,28 +3,118 @@
 {% block content %}
 <h2>Ajouter un nouveau membre</h2>
 
-<form id="membreForm">
-    <input type="text" name="nom" placeholder="Nom" required>
-    <input type="text" name="postnom" placeholder="Postnom" required>
-    <input type="date" name="date_naissance" placeholder="Date de naissance" required>
-    <input type="text" name="adresse" placeholder="Adresse" required>
-    <input type="text" name="telephone" placeholder="Téléphone" required>
-    <select name="section" required>
-        <option value="">--Section--</option>
-        <option value="maman">Maman</option>
-        <option value="baba">Baba</option>
-        <option value="kinjana">Kinjana</option>
-        <option value="muimbaji">Muimbaji</option>
-        <option value="pasteur">Pasteur</option>
-        <option value="reve">Réve</option>
-        <option value="ev">Ev</option>
-        <option value="chemise">Chemise</option>
-        <option value="kiongozi">Kiongozi</option>
-    </select>
+<form id="membreForm" class="formulaire">
+    <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" name="nom" placeholder="Nom" required>
+    </div>
+    <div class="input-group">
+        <i class="fas fa-user-tag"></i>
+        <input type="text" name="postnom" placeholder="Postnom" required>
+    </div>
+    <div class="input-group">
+        <i class="fas fa-calendar-alt"></i>
+        <input type="date" name="date_naissance" placeholder="Date de naissance" required>
+    </div>
+    <div class="input-group">
+        <i class="fas fa-map-marker-alt"></i>
+        <input type="text" name="adresse" placeholder="Adresse" required>
+    </div>
+    <div class="input-group">
+        <i class="fas fa-phone"></i>
+        <input type="text" name="telephone" placeholder="Téléphone" required>
+    </div>
+    <div class="input-group">
+        <i class="fas fa-layer-group"></i>
+        <select name="section" required>
+            <option value="">--Section--</option>
+            <option value="maman">Maman</option>
+            <option value="baba">Baba</option>
+            <option value="kinjana">Kinjana</option>
+            <option value="muimbaji">Muimbaji</option>
+            <option value="pasteur">Pasteur</option>
+            <option value="reve">Réve</option>
+            <option value="ev">Ev</option>
+            <option value="chemise">Chemise</option>
+            <option value="kiongozi">Kiongozi</option>
+        </select>
+    </div>
     <button type="submit"><i class="fas fa-plus"></i> Ajouter</button>
 </form>
 
 <div id="message"></div>
+
+<style>
+.formulaire {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #1E1E1E;
+    border-radius: 12px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    background-color: #272727;
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.input-group i {
+    margin-right: 10px;
+    color: #4ADE80;
+    font-size: 18px;
+}
+
+.input-group input,
+.input-group select {
+    border: none;
+    background: none;
+    color: #E0E0E0;
+    font-size: 16px;
+    width: 100%;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+}
+
+.input-group:hover {
+    background-color: #333333;
+    transform: scale(1.02);
+}
+
+.formulaire button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #4ADE80;
+    color: #1E1E1E;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.formulaire button:hover {
+    background-color: #22c55e;
+    transform: scale(1.05);
+}
+
+#message {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 16px;
+}
+</style>
 
 <script>
 document.getElementById('membreForm').addEventListener('submit', async function(e){
@@ -47,3 +137,4 @@ document.getElementById('membreForm').addEventListener('submit', async function(
 });
 </script>
 {% endblock %}
+
