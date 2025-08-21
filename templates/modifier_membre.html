@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Modifier Membre{% endblock %}
+{% block content %}
+<h2>Modifier le Membre</h2>
+
+<div class="flash-messages">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p style="color: {% if 'Erreur' in msg %}#F87171{% else %}#4ADE80{% endif %};">{{ msg }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<form method="POST" action="{{ url_for('modifier_membre', membre_id=membre.id) }}">
+    <div class="form-group">
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" name="nom" value="{{ membre.nom }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="postnom">Postnom</label>
+        <input type="text" id="postnom" name="postnom" value="{{ membre.postnom }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="date_naissance">Date de naissance</label>
+        <input type="date" id="date_naissance" name="date_naissance" value="{{ membre.date_naissance.strftime('%Y-%m-%d') }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="adresse">Adresse</label>
+        <input type="text" id="adresse" name="adresse" value="{{ membre.adresse }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="telephone">Téléphone</label>
+        <input type="text" id="telephone" name="telephone" value="{{ membre.telephone }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="section">Section</label>
+        <input type="text" id="section" name="section" value="{{ membre.section }}" required>
+    </div>
+    
+    <button type="submit" class="submit-btn">Enregistrer les modifications</button>
+</form>
+
+<style>
+form {
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #1E1E1E;
+    padding: 20px;
+    border-radius: 10px;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+label {
+    display: block;
+    color: #4ADE80;
+    margin-bottom: 5px;
+}
+input[type="text"], input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #333;
+    background-color: #272727;
+    color: #EAEAEA;
+}
+.submit-btn {
+    padding: 10px 20px;
+    background-color: #4ADE80;
+    border: none;
+    border-radius: 5px;
+    color: #1E1E1E;
+    cursor: pointer;
+}
+.submit-btn:hover {
+    background-color: #38B365;
+}
+.flash-messages p {
+    text-align: center;
+}
+</style>
+{% endblock %}
