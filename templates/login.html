@@ -1,11 +1,94 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="max-width: 400px; margin: 50px auto; padding: 20px; background-color: #2a2a2a; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-    <h2 style="text-align:center; color:#ffffff;">Connexion</h2>
-    <form method="POST">
-        <input type="text" name="username" placeholder="Nom d'utilisateur" required>
-        <input type="password" name="password" placeholder="Mot de passe" required>
-        <button type="submit">Se connecter</button>
-    </form>
+<div class="login-wrapper">
+    <div class="login-box">
+        <h2>Connexion</h2>
+        <form method="POST">
+            <input type="text" name="username" placeholder="Nom d'utilisateur" required>
+            <input type="password" name="password" placeholder="Mot de passe" required>
+            <button type="submit">Se connecter</button>
+        </form>
+    </div>
 </div>
+
+<!-- Footer -->
+<footer class="login-footer">
+    © 2025 Église Amani Nguba — Tous droits réservés
+</footer>
+
+<style>
+/* Page */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 40px); /* laisser un espace pour le footer */
+    background: #121212;
+}
+
+/* Carte */
+.login-box {
+    background: #1E1E1E;
+    padding: 40px 35px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    text-align: center;
+}
+.login-box h2 {
+    margin-bottom: 25px;
+    color: #EAEAEA;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+/* Inputs */
+.login-box input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 18px;
+    border: none;
+    border-radius: 8px;
+    background: #2D2D2D;
+    color: #EAEAEA;
+    font-size: 15px;
+    transition: all 0.3s;
+}
+.login-box input::placeholder {
+    color: #888;
+}
+.login-box input:focus {
+    outline: none;
+    background: #333;
+    box-shadow: 0 0 0 2px #4ADE80;
+}
+
+/* Bouton */
+.login-box button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #4ADE80;
+    color: #1E1E1E;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.login-box button:hover {
+    background: #22C55E;
+    transform: scale(1.02);
+}
+
+/* Footer */
+.login-footer {
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    margin-top: 15px;
+    padding: 10px 0;
+}
+</style>
 {% endblock %}
