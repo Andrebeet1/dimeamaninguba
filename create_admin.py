@@ -1,22 +1,22 @@
-from app import app, db, User
+# create_admin.py
+from app import db
+from models import User
 from werkzeug.security import generate_password_hash
 
-with app.app_context():
+def create_admin_user():
     username = "amaninguba"
-    password = "aman4321"
-    
-    hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
+    password = "tonpassword"
     
     user = User.query.filter_by(username=username).first()
-    if user:
-        # Met à jour le mot de passe si l'utilisateur existe
-        user.password = hashed_password
-        print("✅ Mot de passe admin mis à jour !")
+    if not user:
+        admin = User(username=username, password=generate_password_hash(password))
+        db.session.add(admin)
+        db.session.commit()
+        print(f"Admin {username} créé")
     else:
-        # Crée un nouvel utilisateur admin
-        user = User(username=username, password=hashed_password)
-        db.session.add(user)
-        print("✅ Utilisateur admin créé !")
-    
-    db.session.commit()
-    print("✅ Base de données mise à jour avec succès !")
+        print(f"Admin {username} déjà existant")
+
+if __name__ == "__main__":
+    from app import app
+    with app.app_context():
+        create_admin_user()
