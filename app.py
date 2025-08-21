@@ -58,27 +58,9 @@ with app.app_context():
 # ==========================
 # Fonction pour calculer le temps écoulé
 # ==========================
-@app.route('/init_admin')
-def init_admin():
-    username = "admin"
-    password = "admin123"
-    hashed_password = generate_password_hash(password)
-
-    # Vérifie si l'utilisateur existe déjà
-    if User.query.filter_by(username=username).first() is None:
-        user = User(username=username, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        return "✅ Utilisateur admin créé avec succès !<br>Username: admin<br>Password: admin123"
-    else:
-        return "ℹ️ L'utilisateur admin existe déjà."
-
-
-
 def time_ago(timestamp):
     now = datetime.utcnow()
     diff = now - timestamp
-
     if diff.total_seconds() < 60:
         return "Il y a quelques secondes"
     elif diff.total_seconds() < 3600:
@@ -96,7 +78,6 @@ def time_ago(timestamp):
 # ==========================
 @app.route('/')
 def index():
-    """Redirige vers la page de connexion"""
     return redirect(url_for('login_user'))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -105,7 +86,6 @@ def login_user():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-        
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
             flash('Connexion réussie !', 'success')
@@ -126,14 +106,29 @@ def home():
     return render_template('home.html')
 
 # ==========================
-# Ajout utilisateur par défaut
+# Initialisation Admin
+# ==========================
+@app.route('/init_admin')
+def init_admin():
+    username = "admin"
+    password = "admin123"
+    hashed_password = generate_password_hash(password)
+    if User.query.filter_by(username=username).first() is None:
+        user = User(username=username, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        return "✅ Utilisateur admin créé avec succès !<br>Username: admin<br>Password: admin123"
+    else:
+        return "ℹ️ L'utilisateur admin existe déjà."
+
+# ==========================
+# Ajouter utilisateur par défaut
 # ==========================
 @app.route('/ajouter_utilisateur', methods=['GET'])
 def ajouter_utilisateur():
     username = "Amaninguba"
     password = "amani4321"
     hashed_password = generate_password_hash(password)
-
     if User.query.filter_by(username=username).first() is None:
         user = User(username=username, password=hashed_password)
         db.session.add(user)
@@ -148,7 +143,6 @@ def ajouter_utilisateur():
 def ajouter_membre():
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
-        
     if request.method == 'POST':
         try:
             membre = Membre(
@@ -172,7 +166,6 @@ def ajouter_membre():
 def liste_membre():
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
-        
     membres = Membre.query.all()
     return render_template('liste_membre.html', membres=membres)
 
@@ -180,7 +173,6 @@ def liste_membre():
 def supprimer_membre(membre_id):
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
-    
     try:
         membre = Membre.query.get_or_404(membre_id)
         db.session.delete(membre)
@@ -189,8 +181,28 @@ def supprimer_membre(membre_id):
     except Exception as e:
         logging.error(f"Erreur lors de la suppression du membre: {e}")
         flash('Erreur lors de la suppression du membre.', 'danger')
-
     return redirect(url_for('liste_membre'))
+
+@app.route('/modifier_membre/<int:membre_id>', methods=['GET', 'POST'])
+def modifier_membre(membre_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login_user'))
+    membre = Membre.query.get_or_404(membre_id)
+    if request.method == 'POST':
+        try:
+            membre.nom = request.form['nom']
+            membre.postnom = request.form['postnom']
+            membre.date_naissance = datetime.strptime(request.form['date_naissance'], '%Y-%m-%d')
+            membre.adresse = request.form['adresse']
+            membre.telephone = request.form['telephone']
+            membre.section = request.form['section']
+            db.session.commit()
+            flash('Membre modifié avec succès !', 'success')
+            return redirect(url_for('liste_membre'))
+        except Exception as e:
+            logging.error(f"Erreur lors de la modification du membre: {e}")
+            flash('Erreur lors de la modification du membre.', 'danger')
+    return render_template('modifier_membre.html', membre=membre)
 
 # ==========================
 # Dîmes
@@ -199,7 +211,6 @@ def supprimer_membre(membre_id):
 def enregistrer_dime():
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
-        
     membres = Membre.query.all()
     if request.method == 'POST':
         try:
@@ -208,12 +219,10 @@ def enregistrer_dime():
             montant = float(request.form['montant'])
             monnaie = request.form['monnaie']
             taux_change = float(request.form['taux_change']) if monnaie == 'FC' else None
-
             prefix = date.strftime('%m%d')
             last_dime = Dime.query.order_by(Dime.id.desc()).first()
             last_num = (last_dime.id + 1) if last_dime else 1
             numero_recu = f"{prefix}#{last_num:04d}"
-
             dime = Dime(
                 membre_id=membre_id,
                 date=date,
@@ -224,20 +233,17 @@ def enregistrer_dime():
             )
             db.session.add(dime)
             db.session.commit()
-
             flash('Dîme enregistrée avec succès !', 'success')
             return redirect(url_for('liste_dime'))
         except Exception as e:
             logging.error(f"Erreur lors de l'enregistrement de la dîme: {e}")
             flash('Erreur lors de l\'enregistrement de la dîme.', 'danger')
-    
     return render_template('enregistrer_dime.html', membres=membres)
 
 @app.route('/liste_dime')
 def liste_dime():
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
-        
     dimes = Dime.query.order_by(Dime.date.desc()).all()
     return render_template('liste_dime.html', dimes=dimes)
 
@@ -245,7 +251,6 @@ def liste_dime():
 def recu(dime_id):
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
-        
     dime = Dime.query.options(joinedload(Dime.membre)).get_or_404(dime_id)
     return render_template('recu.html', dime=dime)
 
@@ -256,17 +261,12 @@ def recu(dime_id):
 def rapport_mensuel():
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
-        
     membres_count = Membre.query.count()
     dimes = Dime.query.all()
-
     total_fc = sum(d.montant for d in dimes if d.monnaie == 'FC')
     total_usd = sum(d.montant for d in dimes if d.monnaie == 'USD')
-
-    # Conversion en USD
     taux_change = 2000
     total_general_usd = total_usd + (total_fc / taux_change)
-
     return render_template('rapport_mensuel.html',
                            membres_count=membres_count,
                            total_fc=total_fc,
@@ -277,7 +277,6 @@ def rapport_mensuel():
 def notifications_view():
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
-        
     notifications = Notification.query.order_by(Notification.date_created.desc()).all()
     return render_template('notifications.html', notifications=notifications, time_ago=time_ago)
 
