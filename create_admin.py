@@ -5,7 +5,7 @@ from models import User
 
 def create_admin_user():
     username = "amaninguba"   # 🔑 identifiant admin
-    password = "tonpassword"  # 🔑 change ce mot de passe !
+    password = "amani432"  # 🔑 change ce mot de passe !
 
     with app.app_context():
         # Vérifie si l'admin existe déjà
