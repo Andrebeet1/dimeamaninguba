@@ -39,9 +39,9 @@ class Dime(db.Model):
     membre_id = db.Column(db.Integer, db.ForeignKey('membre.id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     montant = db.Column(db.Float, nullable=False)
-    monnaie = db.Column(db.String(5), nullable=False)  # FC ou USD
+    monnaie = db.Column(db.String(5), nullable=False)
     numero_recu = db.Column(db.String(20), unique=True, nullable=False)
-    taux_change = db.Column(db.Float, nullable=True)  # Taux de change pour la conversion
+    taux_change = db.Column(db.Float, nullable=True)
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,7 +56,7 @@ with app.app_context():
     logging.info("Tables créées avec succès !")
 
 # ==========================
-# Fonction pour calculer le temps écoulé
+# Utilitaires
 # ==========================
 def time_ago(timestamp):
     now = datetime.utcnow()
@@ -74,7 +74,7 @@ def time_ago(timestamp):
         return f"Il y a {days} jour{'s' if days != 1 else ''}"
 
 # ==========================
-# Routes
+# Routes de base
 # ==========================
 @app.route('/')
 def index():
@@ -104,51 +104,6 @@ def home():
     if 'user_id' not in session:
         return redirect(url_for('login_user'))
     return render_template('home.html')
-
-# ==========================
-# Initialisation Admin
-# ==========================
-@app.route('/init_admin')
-def init_admin():
-    username = "admin"
-    password = "admin123"
-    hashed_password = generate_password_hash(password)
-    if User.query.filter_by(username=username).first() is None:
-        user = User(username=username, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        return "✅ Utilisateur admin créé avec succès !<br>Username: admin<br>Password: admin123"
-    else:
-        return "ℹ️ L'utilisateur admin existe déjà."
-
-# ==========================
-# Ajouter utilisateur par défaut
-# ==========================
-@app.route('/modifier_membre/<int:membre_id>', methods=['GET', 'POST'])
-def modifier_membre(membre_id):
-    if 'user_id' not in session:
-        return redirect(url_for('login_user'))
-    
-    membre = Membre.query.get_or_404(membre_id)
-    
-    if request.method == 'POST':
-        try:
-            membre.nom = request.form['nom']
-            membre.postnom = request.form['postnom']
-            membre.date_naissance = datetime.strptime(request.form['date_naissance'], '%Y-%m-%d')
-            membre.adresse = request.form['adresse']
-            membre.telephone = request.form['telephone']
-            membre.section = request.form['section']
-            
-            db.session.commit()
-            flash('Membre modifié avec succès !', 'success')
-            return redirect(url_for('liste_membre'))
-        except Exception as e:
-            logging.error(f"Erreur lors de la modification du membre: {e}")
-            flash('Erreur lors de la modification du membre.', 'danger')
-    
-    return render_template('modifier_membre.html', membre=membre)
-
 
 # ==========================
 # Membres
