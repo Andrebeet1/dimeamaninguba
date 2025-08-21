@@ -1,16 +1,20 @@
 {% extends 'base.html' %}
 {% block title %}Liste Dîmes{% endblock %}
 {% block content %}
-<h2>Liste des Dîmes</h2>
-<table>
+<h2 class="titre">Liste des Dîmes</h2>
+
+<!-- Barre de recherche -->
+<input type="text" id="search" class="search-input" placeholder="🔍 Rechercher un membre, un montant ou un reçu...">
+
+<table class="dime-table sortable">
     <thead>
         <tr>
             <th>#</th>
-            <th>Membre</th>
-            <th>Date</th>
-            <th>Montant</th>
-            <th>Monnaie</th>
-            <th>Reçu</th>
+            <th data-type="string"><i class="fas fa-user"></i> Membre</th>
+            <th data-type="date"><i class="fas fa-calendar-alt"></i> Date</th>
+            <th data-type="number"><i class="fas fa-coins"></i> Montant</th>
+            <th data-type="string"><i class="fas fa-money-bill-wave"></i> Monnaie</th>
+            <th><i class="fas fa-receipt"></i> Reçu</th>
         </tr>
     </thead>
     <tbody>
@@ -20,10 +24,156 @@
             <td>{{ d.membre.nom }} {{ d.membre.postnom }}</td>
             <td>{{ d.date.strftime('%d/%m/%Y') }}</td>
             <td>{{ d.montant }}</td>
-            <td>{{ d.monnaie }}</td>
-            <td><a href="{{ url_for('recu', dime_id=d.id) }}"><i class="fas fa-receipt"></i> {{ d.numero_recu }}</a></td>
+            <td>
+                {% if d.monnaie == "USD" %}
+                    <span class="badge usd">USD</span>
+                {% else %}
+                    <span class="badge fc">FC</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('recu', dime_id=d.id) }}" class="recu-link">
+                    <i class="fas fa-file-invoice-dollar"></i> {{ d.numero_recu }}
+                </a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<style>
+.titre {
+    text-align: center;
+    color: #4ADE80;
+    margin-bottom: 15px;
+}
+
+/* Recherche */
+.search-input {
+    width: 100%;
+    padding: 10px;
+    margin: 12px 0;
+    border-radius: 8px;
+    border: none;
+    background: #272727;
+    color: #E0E0E0;
+    font-size: 14px;
+}
+.search-input:focus {
+    outline: 2px solid #4ADE80;
+}
+
+/* Tableau */
+.dime-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: #1E1E1E;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14px;
+}
+.dime-table thead {
+    background: #272727;
+}
+.dime-table th, .dime-table td {
+    padding: 12px;
+    text-align: left;
+}
+.dime-table th {
+    color: #4ADE80;
+    cursor: pointer;
+    user-select: none;
+}
+.dime-table tbody tr:nth-child(even) {
+    background: #2D2D2D;
+}
+.dime-table tbody tr:hover {
+    background: #333333;
+}
+
+/* Badges Monnaie */
+.badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+}
+.badge.usd { background: #16A34A; }  /* Vert foncé */
+.badge.fc { background: #2563EB; }   /* Bleu */
+
+/* Reçu */
+.recu-link {
+    color: #4ADE80;
+    text-decoration: none;
+    font-weight: bold;
+}
+.recu-link:hover {
+    text-decoration: underline;
+}
+
+/* Tri visuel */
+th.sorted-asc::after {
+    content: " ▲";
+    color: #4ADE80;
+}
+th.sorted-desc::after {
+    content: " ▼";
+    color: #4ADE80;
+}
+</style>
+
+<script>
+// Tri des colonnes
+document.querySelectorAll("table.sortable thead th[data-type]").forEach(th => {
+    th.addEventListener("click", function() {
+        const table = th.closest("table");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const index = Array.from(th.parentNode.children).indexOf(th);
+        const type = th.dataset.type;
+        const isAsc = !th.classList.contains("sorted-asc");
+
+        th.parentNode.querySelectorAll("th").forEach(h => h.classList.remove("sorted-asc", "sorted-desc"));
+
+        rows.sort((a, b) => {
+            let A = a.children[index].innerText.trim();
+            let B = b.children[index].innerText.trim();
+
+            if (type === "number") {
+                A = parseFloat(A.replace(/[^0-9.-]+/g, "")) || 0;
+                B = parseFloat(B.replace(/[^0-9.-]+/g, "")) || 0;
+            } else if (type === "date") {
+                const [dayA, monthA, yearA] = A.split("/").map(Number);
+                const [dayB, monthB, yearB] = B.split("/").map(Number);
+                A = new Date(yearA, monthA - 1, dayA);
+                B = new Date(yearB, monthB - 1, dayB);
+            } else {
+                A = A.toLowerCase();
+                B = B.toLowerCase();
+            }
+
+            if (A < B) return isAsc ? -1 : 1;
+            if (A > B) return isAsc ? 1 : -1;
+            return 0;
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+        th.classList.add(isAsc ? "sorted-asc" : "sorted-desc");
+    });
+});
+
+// Recherche
+document.getElementById("search").addEventListener("keyup", function() {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll(".dime-table tbody tr");
+
+    rows.forEach(row => {
+        row.style.display = Array.from(row.children).some(td =>
+            td.textContent.toLowerCase().includes(filter)
+        ) ? "" : "none";
+    });
+});
+</script>
 {% endblock %}
