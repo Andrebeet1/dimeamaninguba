@@ -1,30 +1,132 @@
 {% extends 'base.html' %}
 {% block title %}Enregistrer Dîme{% endblock %}
 {% block content %}
-<h2>Enregistrer une Dîme</h2>
+<h2>Enregistrer une nouvelle dîme</h2>
 
-<form id="dimeForm">
-    <select name="membre_id" required>
-        <option value="">--Choisir un membre--</option>
-        {% for m in membres %}
-        <option value="{{ m.id }}">{{ m.nom }} {{ m.postnom }}</option>
-        {% endfor %}
-    </select>
-    <input type="date" name="date" required>
-    <input type="number" name="montant" placeholder="Montant" required>
-    <select name="monnaie" required>
-        <option value="FC">FC</option>
-        <option value="USD">USD</option>
-    </select>
-    <button type="submit"><i class="fas fa-coins"></i> Enregistrer</button>
+<form id="dimeForm" class="formulaire">
+    <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input list="membresList" name="membre_nom" placeholder="Nom du membre" autocomplete="on" required>
+        <datalist id="membresList">
+            {% for membre in membres %}
+            <option value="{{ membre.nom }} {{ membre.postnom }}">
+            {% endfor %}
+        </datalist>
+    </div>
+    <div class="input-group">
+        <i class="fas fa-calendar-alt"></i>
+        <input type="date" name="date" placeholder="Date" required>
+    </div>
+    <div class="input-group">
+        <i class="fas fa-coins"></i>
+        <input type="number" step="0.01" name="montant" placeholder="Montant" required>
+    </div>
+    <div class="input-group">
+        <i class="fas fa-dollar-sign"></i>
+        <select name="monnaie" required>
+            <option value="">--Monnaie--</option>
+            <option value="FC">FC</option>
+            <option value="USD">USD</option>
+        </select>
+    </div>
+    <button type="submit"><i class="fas fa-plus"></i> Enregistrer Dîme</button>
 </form>
 
 <div id="message"></div>
+
+<style>
+.formulaire {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 25px;
+    background-color: #1E1E1E;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    background-color: #272727;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.input-group i {
+    margin-right: 12px;
+    color: #4ADE80;
+    font-size: 20px;
+}
+
+.input-group input,
+.input-group select {
+    border: none;
+    background: none;
+    color: #E0E0E0;
+    font-size: 18px;
+    width: 100%;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+}
+
+.input-group:hover {
+    background-color: #333333;
+    transform: scale(1.02);
+}
+
+.formulaire button {
+    width: 100%;
+    padding: 16px;
+    border-radius: 10px;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    background-color: #4ADE80;
+    color: #1E1E1E;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.formulaire button:hover {
+    background-color: #22c55e;
+    transform: scale(1.05);
+}
+
+#message {
+    text-align: center;
+    margin-top: 18px;
+    font-weight: bold;
+    font-size: 17px;
+}
+</style>
 
 <script>
 document.getElementById('dimeForm').addEventListener('submit', async function(e){
     e.preventDefault();
     let formData = new FormData(this);
+
+    // Convertir le nom sélectionné en membre_id
+    let membreNom = formData.get('membre_nom');
+    let membreId = null;
+    {% for membre in membres %}
+        if (membreNom === "{{ membre.nom }} {{ membre.postnom }}") {
+            membreId = {{ membre.id }};
+        }
+    {% endfor %}
+    if (!membreId) {
+        document.getElementById('message').textContent = "Membre introuvable !";
+        document.getElementById('message').style.color = "#F87171";
+        return;
+    }
+    formData.set('membre_id', membreId);
+
     let response = await fetch("/enregistrer_dime", {
         method: "POST",
         body: formData
@@ -42,3 +144,4 @@ document.getElementById('dimeForm').addEventListener('submit', async function(e)
 });
 </script>
 {% endblock %}
+
