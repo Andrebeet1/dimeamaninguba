@@ -11,9 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # ==========================
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secretkey123')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'DATABASE_URL', 'sqlite:///dime.db'
-)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///dime.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -58,6 +56,25 @@ with app.app_context():
     logging.info("Tables créées avec succès !")
 
 # ==========================
+# Fonction pour calculer le temps écoulé
+# ==========================
+def time_ago(timestamp):
+    now = datetime.utcnow()
+    diff = now - timestamp
+
+    if diff.total_seconds() < 60:
+        return "Il y a quelques secondes"
+    elif diff.total_seconds() < 3600:
+        minutes = diff.seconds // 60
+        return f"Il y a {minutes} minute{'s' if minutes != 1 else ''}"
+    elif diff.total_seconds() < 86400:
+        hours = diff.seconds // 3600
+        return f"Il y a {hours} heure{'s' if hours != 1 else ''}"
+    else:
+        days = diff.days
+        return f"Il y a {days} jour{'s' if days != 1 else ''}"
+
+# ==========================
 # Routes
 # ==========================
 @app.route('/')
@@ -75,8 +92,7 @@ def login_user():
             session['user_id'] = user.id
             flash('Connexion réussie !', 'success')
             return redirect(url_for('home'))
-        else:
-            flash('Nom d’utilisateur ou mot de passe incorrect.', 'danger')
+        flash('Nom d’utilisateur ou mot de passe incorrect.', 'danger')
     return render_template('login.html')
 
 @app.route('/logout')
@@ -98,14 +114,12 @@ def ajouter_utilisateur():
         password = "amani4321"
         hashed_password = generate_password_hash(password)
 
-        # Vérifier si l'utilisateur existe déjà
         if User.query.filter_by(username=username).first() is None:
             user = User(username=username, password=hashed_password)
             db.session.add(user)
             db.session.commit()
             return 'Utilisateur ajouté avec succès !'
-        else:
-            return 'L\'utilisateur existe déjà.', 400
+        return 'L\'utilisateur existe déjà.', 400
 
 @app.route('/ajouter_membre', methods=['GET', 'POST'])
 def ajouter_membre():
@@ -114,29 +128,21 @@ def ajouter_membre():
         
     if request.method == 'POST':
         try:
-            nom = request.form['nom']
-            postnom = request.form['postnom']
-            date_naissance = datetime.strptime(request.form['date_naissance'], '%Y-%m-%d')
-            adresse = request.form['adresse']
-            telephone = request.form['telephone']
-            section = request.form['section']
-
             membre = Membre(
-                nom=nom,
-                postnom=postnom,
-                date_naissance=date_naissance,
-                adresse=adresse,
-                telephone=telephone,
-                section=section
+                nom=request.form['nom'],
+                postnom=request.form['postnom'],
+                date_naissance=datetime.strptime(request.form['date_naissance'], '%Y-%m-%d'),
+                adresse=request.form['adresse'],
+                telephone=request.form['telephone'],
+                section=request.form['section']
             )
             db.session.add(membre)
             db.session.commit()
-
             flash('Membre ajouté avec succès !', 'success')
             return redirect(url_for('liste_membre'))
         except Exception as e:
-            logging.error(e)
-            flash('Erreur lors de l\'ajout du membre : ' + str(e), 'danger')
+            logging.error(f"Erreur lors de l'ajout du membre: {e}")
+            flash('Erreur lors de l\'ajout du membre.', 'danger')
     return render_template('ajouter_membre.html')
 
 @app.route('/liste_membre')
@@ -148,8 +154,8 @@ def liste_membre():
         membres = Membre.query.all()
         return render_template('liste_membre.html', membres=membres)
     except Exception as e:
-        logging.error(e)
-        flash('Erreur lors de l\'affichage des membres : ' + str(e), 'danger')
+        logging.error(f"Erreur lors de l'affichage des membres: {e}")
+        flash('Erreur lors de l\'affichage des membres.', 'danger')
         return redirect(url_for('home'))
 
 @app.route('/supprimer_membre/<int:membre_id>', methods=['POST'])
@@ -163,8 +169,8 @@ def supprimer_membre(membre_id):
         db.session.commit()
         flash('Membre supprimé avec succès !', 'success')
     except Exception as e:
-        logging.error(e)
-        flash('Erreur lors de la suppression du membre : ' + str(e), 'danger')
+        logging.error(f"Erreur lors de la suppression du membre: {e}")
+        flash('Erreur lors de la suppression du membre.', 'danger')
 
     return redirect(url_for('liste_membre'))
 
@@ -182,10 +188,9 @@ def enregistrer_dime():
             monnaie = request.form['monnaie']
             taux_change = float(request.form['taux_change']) if monnaie == 'FC' else None
 
-            # Génération du numéro de reçu : Mmjj#xxxx
             prefix = date.strftime('%m%d')
             last_dime = Dime.query.order_by(Dime.id.desc()).first()
-            last_num = int(last_dime.id) + 1 if last_dime else 1
+            last_num = (last_dime.id + 1) if last_dime else 1
             numero_recu = f"{prefix}#{last_num:04d}"
 
             dime = Dime(
@@ -202,8 +207,8 @@ def enregistrer_dime():
             flash('Dime enregistrée avec succès !', 'success')
             return redirect(url_for('liste_dime'))
         except Exception as e:
-            logging.error(e)
-            flash('Erreur lors de l\'enregistrement de la dime : ' + str(e), 'danger')
+            logging.error(f"Erreur lors de l'enregistrement de la dime: {e}")
+            flash('Erreur lors de l\'enregistrement de la dime.', 'danger')
     
     return render_template('enregistrer_dime.html', membres=membres)
 
@@ -216,8 +221,8 @@ def liste_dime():
         dimes = Dime.query.order_by(Dime.date.desc()).all()
         return render_template('liste_dime.html', dimes=dimes)
     except Exception as e:
-        logging.error(e)
-        flash('Erreur lors de l\'affichage des dîmes : ' + str(e), 'danger')
+        logging.error(f"Erreur lors de l'affichage des dîmes: {e}")
+        flash('Erreur lors de l\'affichage des dîmes.', 'danger')
         return redirect(url_for('home'))
 
 @app.route('/recu/<int:dime_id>')
@@ -229,8 +234,8 @@ def recu(dime_id):
         dime = Dime.query.options(joinedload(Dime.membre)).get_or_404(dime_id)
         return render_template('recu.html', dime=dime)
     except Exception as e:
-        logging.error(e)
-        flash('Erreur lors de l\'affichage du reçu : ' + str(e), 'danger')
+        logging.error(f"Erreur lors de l'affichage du reçu: {e}")
+        flash('Erreur lors de l\'affichage du reçu.', 'danger')
         return redirect(url_for('liste_dime'))
 
 @app.route('/rapport_mensuel')
@@ -247,9 +252,8 @@ def rapport_mensuel():
 
         # Conversion pour le total général en USD
         taux_change = 2000
-        total_general_usd = total_usd + total_fc / taux_change
+        total_general_usd = total_usd + (total_fc / taux_change)
 
-        # Log des statistiques pour vérification
         logging.info(f"Membres: {membres_count}, Total FC: {total_fc}, Total USD: {total_usd}")
 
         return render_template('rapport_mensuel.html',
@@ -258,21 +262,21 @@ def rapport_mensuel():
                                total_usd=total_usd,
                                total_general_usd=round(total_general_usd, 2))
     except Exception as e:
-        logging.error(e)
-        flash('Erreur lors de l\'affichage du rapport : ' + str(e), 'danger')
+        logging.error(f"Erreur lors de l'affichage du rapport: {e}")
+        flash('Erreur lors de l\'affichage du rapport.', 'danger')
         return redirect(url_for('home'))
 
 @app.route('/notifications')
-def notifications():
+def notifications_view():
     if 'user_id' not in session:
         return redirect(url_for('login'))
         
     try:
         notifications = Notification.query.order_by(Notification.date_created.desc()).all()
-        return render_template('notifications.html', notifications=notifications)
+        return render_template('notifications.html', notifications=notifications, time_ago=time_ago)
     except Exception as e:
-        logging.error(e)
-        flash('Erreur lors de l\'affichage des notifications : ' + str(e), 'danger')
+        logging.error(f"Erreur lors de l'affichage des notifications: {e}")
+        flash('Erreur lors de l\'affichage des notifications.', 'danger')
         return redirect(url_for('home'))
 
 @app.route('/rechercher_membre', methods=['GET'])
