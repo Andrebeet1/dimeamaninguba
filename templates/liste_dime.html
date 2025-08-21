@@ -6,6 +6,16 @@
 <!-- Barre de recherche -->
 <input type="text" id="search" class="search-input" placeholder="🔍 Rechercher un membre, un montant ou un reçu...">
 
+<div class="flash-messages">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p style="color: {% if 'Erreur' in msg %}#F87171{% else %}#4ADE80{% endif %};">{{ msg }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
 <table class="dime-table sortable">
     <thead>
         <tr>
@@ -135,11 +145,15 @@ document.querySelectorAll("table.sortable thead th[data-type]").forEach(th => {
         const type = th.dataset.type;
         const isAsc = !th.classList.contains("sorted-asc");
 
+        // Reset des classes de tri
         th.parentNode.querySelectorAll("th").forEach(h => h.classList.remove("sorted-asc", "sorted-desc"));
+        th.classList.toggle("sorted-asc", isAsc);
+        th.classList.toggle("sorted-desc", !isAsc);
 
+        // Tri des lignes
         rows.sort((a, b) => {
-            let A = a.children[index].innerText.trim();
-            let B = b.children[index].innerText.trim();
+            let A = a.children[index].innerText.trim().toLowerCase();
+            let B = b.children[index].innerText.trim().toLowerCase();
 
             if (type === "number") {
                 A = parseFloat(A.replace(/[^0-9.-]+/g, "")) || 0;
@@ -149,18 +163,13 @@ document.querySelectorAll("table.sortable thead th[data-type]").forEach(th => {
                 const [dayB, monthB, yearB] = B.split("/").map(Number);
                 A = new Date(yearA, monthA - 1, dayA);
                 B = new Date(yearB, monthB - 1, dayB);
-            } else {
-                A = A.toLowerCase();
-                B = B.toLowerCase();
             }
 
-            if (A < B) return isAsc ? -1 : 1;
-            if (A > B) return isAsc ? 1 : -1;
-            return 0;
+            return isAsc ? (A > B ? 1 : -1) : (A < B ? 1 : -1);
         });
 
+        // Réinsertion des lignes triées
         rows.forEach(r => tbody.appendChild(r));
-        th.classList.add(isAsc ? "sorted-asc" : "sorted-desc");
     });
 });
 
@@ -170,9 +179,8 @@ document.getElementById("search").addEventListener("keyup", function() {
     const rows = document.querySelectorAll(".dime-table tbody tr");
 
     rows.forEach(row => {
-        row.style.display = Array.from(row.children).some(td =>
-            td.textContent.toLowerCase().includes(filter)
-        ) ? "" : "none";
+        const textContent = Array.from(row.children).map(td => td.textContent.toLowerCase()).join(" ");
+        row.style.display = textContent.includes(filter) ? "" : "none";
     });
 });
 </script>
