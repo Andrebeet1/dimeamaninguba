@@ -6,21 +6,24 @@
 <form id="dimeForm" class="formulaire" method="POST" action="{{ url_for('enregistrer_dime') }}">
     <div class="input-group">
         <i class="fas fa-user"></i>
-        <input list="membresList" name="membre_nom" placeholder="Nom du membre" autocomplete="on" required>
-        <datalist id="membresList">
+        <select name="membre_id" required>
+            <option value="">--Choisir un membre--</option>
             {% for membre in membres %}
-            <option value="{{ membre.nom }} {{ membre.postnom }}">
+                <option value="{{ membre.id }}">{{ membre.nom }} {{ membre.postnom }}</option>
             {% endfor %}
-        </datalist>
+        </select>
     </div>
+
     <div class="input-group">
         <i class="fas fa-calendar-alt"></i>
         <input type="date" name="date" placeholder="Date" required>
     </div>
+
     <div class="input-group">
         <i class="fas fa-coins"></i>
         <input type="number" step="0.01" name="montant" placeholder="Montant" required>
     </div>
+
     <div class="input-group">
         <i class="fas fa-dollar-sign"></i>
         <select name="monnaie" required>
@@ -29,6 +32,7 @@
             <option value="USD">USD</option>
         </select>
     </div>
+
     <button type="submit"><i class="fas fa-plus"></i> Enregistrer Dîme</button>
 </form>
 
@@ -80,39 +84,4 @@
 }
 
 .input-group input:focus,
-.input-group select:focus {
-    outline: none;
-}
-
-.input-group:hover {
-    background-color: #333333;
-    transform: scale(1.02);
-}
-
-.formulaire button {
-    width: 100%;
-    padding: 16px;
-    border-radius: 10px;
-    border: none;
-    font-size: 20px;
-    font-weight: bold;
-    background-color: #4ADE80;
-    color: #1E1E1E;
-    cursor: pointer;
-    transition: transform 0.2s, background-color 0.2s;
-}
-
-.formulaire button:hover {
-    background-color: #22c55e;
-    transform: scale(1.05);
-}
-
-#message {
-    text-align: center;
-    margin-top: 18px;
-    font-weight: bold;
-    font-size: 17px;
-}
-</style>
-
-{% endblock %}
+.input-group sele
